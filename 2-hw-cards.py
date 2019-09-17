@@ -67,7 +67,6 @@ class Deck(object):
 				card = Card(suit,rank)
 				self.cards.append(card)
 
-
 def play_war_game(testing=False):
 	# Call this with testing = True and it won't print out all the game stuff -- makes it hard to see test results
 	player1 = Deck()
