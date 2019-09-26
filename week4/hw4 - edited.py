@@ -21,10 +21,12 @@ Task A
 from random import randrange
 
 class Explore_pet:
+
     boredom_decrement = -4
     hunger_decrement = -4
     boredom_threshold = 6
     hunger_threshold = 10
+
     def __init__(self, name="Coco"):
         self.name = name
         self.hunger = randrange(self.hunger_threshold)
@@ -49,15 +51,17 @@ class Explore_pet:
 
 coco = Explore_pet()
 
+print()
 brian = Explore_pet("Brian")
 brian.hunger = 11
-print(brian)
+print(brian, "\n")
 
 '''
 Task B
 '''
 
 class Pet:
+
     boredom_decrement = -4
     hunger_decrement = -4
     boredom_threshold = 6
@@ -96,7 +100,7 @@ class Pet:
             for a in self.words:
                 print(a)
         else:
-            print(random.choice(self.words))
+            return random.choice(self.words)
     
     def teach(self, word):
         self.words.append(word)
@@ -112,13 +116,14 @@ class Pet:
             self.hunger += self.hunger_decrement
     
     def hi(self):
-        self.say(False)
+        print(self.say(False))
 
 '''
 Task C
 '''
 
 def teaching_session(my_pet, new_words):
+
     for a in new_words:
         my_pet.teach(a)
         my_pet.hi()
@@ -129,7 +134,7 @@ def teaching_session(my_pet, new_words):
 
 tina = Pet("Tina")
 teaching_session(tina, ["I am sleepy", "You are the best", "I love you, too"])
-
+print()
 
 #######################################################################
 #---------- Part 2: Inheritance - subclasses
@@ -139,9 +144,49 @@ teaching_session(tina, ["I am sleepy", "You are the best", "I love you, too"])
 Task A: Dog and Cat    
 '''
 
+class Dog(Pet):
 
+    def __str__(self):
+        state = "I'm " + self.name + ", arrrf! "
+        state += 'I feel ' + self.mood() + ", arrrf! "
+        if self.mood() == 'hungry':
+            state += "Feed me, arrrf!"
+        if self.mood() == 'bored':
+            state += "You can teach me new words, arrrf!"
+        return state
+
+class Cat(Pet):
+
+    def __init__(self, name = "Coco", meow_count = 1):
+        self.meow_count = meow_count
+        super().__init__(name)
+
+    def hi(self):
+        phrase = ""
+        word = self.say(False)
+        i = 0
+        while i < self.meow_count:
+            phrase += word
+            i += 1
+        print(phrase)
 
 '''
 Task B: Poodle 
 '''
-#your code begins here . . . 
+
+class Poodle(Dog):
+
+    def dance(self):
+        print("Dancing in circles like poodles do!")
+    
+    def say(self, all_mode = True):
+        self.dance()
+        print(super().say(False))
+
+fluflu = Poodle("Fluflu")
+fluflu.say(False)
+print()
+
+garfield = Cat("Garfield", 5)
+garfield.hi()
+print()
