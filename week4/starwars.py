@@ -54,15 +54,17 @@ class Human(Character):
         return super().__str__() + ', eye color: ' + self.eye_color
 
 # class Jedi(Human)
-# If you see a character whose name starts with Luke or
-#   Obi-wan, make them into a Jedi
-# The Jedi constructor should delegate to the super( )
-#   constructor (Human), but add one instance variable:
-#   has_light_saber = True
-# Override __str__( ) so that something additional
-#   prints out for Jedis that lets us know they are
-#   Jedis (but all the old stuff should print out. And
-#   remember to stay DRY!
+'''
+If you see a character whose name starts with Luke or
+  Obi-wan, make them into a Jedi
+The Jedi constructor should delegate to the super( )
+  constructor (Human), but add one instance variable:
+  has_light_saber = True
+Override __str__( ) so that something additional
+  prints out for Jedis that lets us know they are
+  Jedis (but all the old stuff should print out. And
+  remember to stay DRY!
+'''
 
 dummy_char = Character('Jabba', 'Hutt')
 print(dummy_char)
