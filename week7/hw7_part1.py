@@ -40,9 +40,11 @@ def make_request_using_cache(url):
 #### Your Part 1 solution goes here ####
 
 def get_umsi_data(page):
+    
+    umsi_people = {}
+    
     for i in range(0,14):
         # Creating dictionary
-        umsi_people = {}
         
         # Accessing and parsing page of the directory
         url_complement = "&page=" + str(i)
@@ -85,19 +87,21 @@ def get_umsi_data(page):
                 #print(title)
 
                 # Writing to dictionary
-                #print(email, "-", name + ",", title)
+                # print(email, "-", name + ",", title)
                 umsi_people[email] = {'name': name, 'title': title}
+                # print(umsi_people)
+                # print("="*50)
         
-    #print(umsi_people)
+    # print(umsi_people)
     return umsi_people
 
 #### Execute function, get_umsi_data, here ####
 url = "https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=All"
-umsi_people = get_umsi_data(url)
-#print(umsi_people)
+umsi_people_dict = get_umsi_data(url)
+#print(umsi_people_dict)
 
 #### Write out file here #####
-json = json.dumps(umsi_people)
+json = json.dumps(umsi_people_dict)
 f = open("directory_dict.json", "w")
 f.write(json)
 f.close()

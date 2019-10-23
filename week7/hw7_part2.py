@@ -21,4 +21,4 @@ for person in umsi_people:
         count += 1
 
 #### Your answer output (change the value in the variable, count)####
-print('The number of PhD students: ', count)
+print('\nThe number of PhD students: ', count, '\n')
