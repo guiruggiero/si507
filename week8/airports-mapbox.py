@@ -14,6 +14,7 @@ for row in csv_data:
         lon_vals.append(row[6])
         text_vals.append(row[0])
 
+# Style specs: https://docs.mapbox.com/mapbox-gl-js/style-spec/
 layout = dict(
     title = 'US airports on Mapbox<br>(Hover for airport names)',
     autosize=True,
