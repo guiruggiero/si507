@@ -6,27 +6,6 @@ import secret
 import plotly
 import plotly.graph_objs as go
 
-# Don't change this part
-FLICKR_KEY = secret.FLICKR_KEY
-MAPBOX_TOKEN = secret.MAPBOX_TOKEN
-
-base_url = "https://api.flickr.com/services/rest"
-'''
- Compose the url for requests to use.
- Parameters:
-    method: string. The API method you want to use. e.g. "flickr.galleries.getInfo"
-    parameter: dictionary. The parameters for the API query. e.g. {"gallery_id": "72157617483228192"}
- Returns: string. A composed url for requests to use. 
-'''
-def compose_url(method, parameter):
-    temp_list = []
-    for i in parameter:
-        temp_list.append(str(i) + "=" + str(parameter[i]).replace(" ", "+"))
-    parameter_string = "&".join(temp_list)
-    return base_url+"/?method={}&api_key={}&{}&format=json&nojsoncallback=1".format(method, FLICKR_KEY, parameter_string)
-
-# -----------------------------------------------------------------------------
-
 # Caching
 CACHE_FNAME = 'cache.json'
 try:
@@ -37,50 +16,111 @@ try:
 except:
     CACHE_DICTION = {}
 
-def make_request_using_cache(method, parameter):
-    unique_ident = parameter["city"]
+def request_using_cache_venue(city_query, location_type_query):
+    #print(city_query+location_type_query)
+    unique_ident = city_query + location_type_query
+    #print(unique_ident)
+
     if unique_ident in CACHE_DICTION:
         #print("Getting cached data...")
         return CACHE_DICTION[unique_ident]
+    
     else:
         #print("Making a request for new data...")
-        resp = requests.get(compose_url(method, parameter))
-        
-#       change value to only the list of photo information your API got 
-        CACHE_DICTION[unique_ident] = resp.text
-
+        url = "https://api.foursquare.com/v2/venues/search"
+        params = dict(
+            client_id = secret.FOURSQUARE_ID,
+            client_secret = secret.FOURSQUARE_SECRET,
+            v = '20180323',
+            near = city_query,
+            query = location_type_query,
+            limit = 25
+        )
+        resp = requests.get(url = url, params = params)
+        CACHE_DICTION[unique_ident] = json.loads(resp.text)
         dumped_json_cache = json.dumps(CACHE_DICTION)
-        fw = open(CACHE_FNAME,"w")
+        fw = open(CACHE_FNAME, "w")
         fw.write(dumped_json_cache)
         fw.close()
+
+        return CACHE_DICTION[unique_ident]
+
+def request_using_cache_photo(id_query):
+    unique_ident = id_query
+    
+    if unique_ident in CACHE_DICTION:
+        #print("Getting cached data...")
+        return CACHE_DICTION[unique_ident]
+    
+    else:
+        #print("Making a request for new data...")
+        url = "https://api.foursquare.com/v2/venues/" + id_query + "/photos"
+        params = dict(
+            client_id = secret.FOURSQUARE_ID,
+            client_secret = secret.FOURSQUARE_SECRET,
+            v = '20180323',
+            limit = 1
+        )
+        resp = requests.get(url = url, params = params)
+        CACHE_DICTION[unique_ident] = json.loads(resp.text)
+        dumped_json_cache = json.dumps(CACHE_DICTION)
+        fw = open(CACHE_FNAME, "w")
+        fw.write(dumped_json_cache)
+        fw.close()
+
         return CACHE_DICTION[unique_ident]
 
 # ----------------------------------------------
-# Part 1: Get photo information using Flickr API
+# Part 1: Get photo information using Foursquare API
 # ----------------------------------------------
-print("----------------Part 1--------------------")
+print("\n----------------Part 1--------------------\n")
 
-# Sample input: python3 hw8.py Ann Arbor
-query = sys.argv[1]
+city = input("In what city do you want to search? ")
+location_type = input("What type of place are you looking for? ")
 
-# get place_id from city
-#aaa
+locations = request_using_cache_venue(city, location_type)
+#print("\n", locations)
 
-# get 250 photos from place_id
-#aaa
+for i in range(25):
+    venue_id = locations["response"]["venues"][i]["id"]
+    photos = request_using_cache_photo(venue_id)
+    #print(i)
+    #print(locations["response"]["venues"][i]["name"])
+    #print(photos)
+    #try:
+    #    print(photos["response"]["photos"]["items"][0]["id"], "\n")
+    #except:
+    #    print("No photo\n")
 
-# filter out the photos uploaded by the same person (only one photo per uploader should be kept)
-#AAA
+    # Handling if some information is missing
+    try:
+        address = locations["response"]["venues"][i]["location"]["address"]
+    except:
+        address = "no address"
+    try:
+        city_response = locations["response"]["venues"][i]["location"]["city"]
+    except:
+        city_response = "no city"
+    try:
+        state = locations["response"]["venues"][i]["location"]["state"]
+    except:
+        state = "no state"
+    try:
+        postal_code = locations["response"]["venues"][i]["location"]["postalCode"]
+    except:
+        postal_code = "no postal code"
+    try:
+        photo_id = photos["response"]["photos"]["items"][0]["id"]
+    except:
+        photo_id = "no photo"
 
-# print stuff out
-# Photo id: 45375804911
-# Title:
-# Description:
-#aaa
+    print("\nVenue", str(i+1) + ":", locations["response"]["venues"][i]["name"])
+    print("Address:", address + ",", city_response + ",", state, postal_code)
+    print("Photo ID:", photo_id)
 
 # ----------------------------------------------
 # Part 2: Map data onto Plotly
 # ----------------------------------------------
-print("----------------Part 2--------------------")
+#print("----------------Part 2--------------------")
 
 #aaa
