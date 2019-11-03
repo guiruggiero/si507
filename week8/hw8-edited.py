@@ -87,7 +87,7 @@ locations = request_using_cache_venue(city, location_type)
 
 for i in range(25):
     venue_id = locations["response"]["venues"][i]["id"]
-    photos = request_using_cache_photo(venue_id)
+    photos = request_using_cache_photo(venue_id) # API is 
     #print(i)
     #print(locations["response"]["venues"][i]["name"])
     #print(photos)
@@ -154,6 +154,7 @@ for i in range(25):
 # ----------------------------------------------
 print("\n----------------Part 2--------------------")
 
+# Map data
 lat_vals = []
 lgn_vals = []
 text_vals = []
@@ -161,6 +162,14 @@ for i in part2_data:
     lat_vals.append(i["venue_lat"])
     lgn_vals.append(i["venue_lng"])
     text_vals.append("<br>"+i["venue_name"]+"<br>"+i["venue_photo_url"])
+fig = go.Figure(data = go.Scattermapbox(
+    lat = lat_vals,
+    lon = lgn_vals,
+    text = text_vals,
+    mode = 'markers',
+    marker_color = 'blue',
+    )
+)
 
 # Map style
 layout = dict(
@@ -169,22 +178,15 @@ layout = dict(
     hovermode = "closest",
     mapbox = dict(
         accesstoken = secret.MAPBOX_TOKEN,
-        # center = dict(
-        #     lat = 38,
-        #     lon = -94
-        # ),
-        zoom = 3,
+        center = dict(
+            lat = lat_vals[0],
+            lon = lgn_vals[0]
+        ),
+        zoom = 13,
     )
 )
 
-fig = go.Figure(data = go.Scattermapbox(
-    lat = lat_vals,
-    lon = lgn_vals,
-    text = text_vals,
-    mode = 'markers',
-    marker_color = 'blue',
-    ))
-
+# Map creation and showing
 fig.update_layout(layout)
 fig.write_html('venues.html', auto_open = True)
-print("\nMap created successfully!")
+print("\nMap 'venues.html' created successfully!\n")
