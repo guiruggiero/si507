@@ -6,7 +6,7 @@ import secret
 import plotly
 import plotly.graph_objs as go
 
-# Caching
+# Caching file/dictionary
 CACHE_FNAME = 'cache.json'
 try:
     cache_file = open(CACHE_FNAME, 'r')
@@ -16,6 +16,7 @@ try:
 except:
     CACHE_DICTION = {}
 
+# Request/cache function for venue API
 def request_using_cache_venue(city_query, location_type_query):
     #print(city_query+location_type_query)
     unique_ident = city_query + location_type_query
@@ -45,6 +46,7 @@ def request_using_cache_venue(city_query, location_type_query):
 
         return CACHE_DICTION[unique_ident]
 
+# Request/cache function for photo API
 def request_using_cache_photo(id_query):
     unique_ident = id_query
     
@@ -70,6 +72,8 @@ def request_using_cache_photo(id_query):
 
         return CACHE_DICTION[unique_ident]
 
+part2_data = []
+
 # ----------------------------------------------
 # Part 1: Get photo information using Foursquare API
 # ----------------------------------------------
@@ -94,6 +98,10 @@ for i in range(25):
 
     # Handling if some information is missing
     try:
+        name = locations["response"]["venues"][i]["name"]
+    except:
+        name = "no name"    
+    try:
         address = locations["response"]["venues"][i]["location"]["address"]
     except:
         address = "no address"
@@ -110,17 +118,73 @@ for i in range(25):
     except:
         postal_code = "no postal code"
     try:
+        lat = locations["response"]["venues"][i]["location"]["lat"]
+        lng = locations["response"]["venues"][i]["location"]["lng"]
+    except:
+        lat = 0
+        lng = 0
+    try:
         photo_id = photos["response"]["photos"]["items"][0]["id"]
     except:
         photo_id = "no photo"
+    try:
+        photo_url = photos["response"]["photos"]["items"][0]["prefix"] + "original" + photos["response"]["photos"]["items"][0]["suffix"]
+    except:
+        photo_url = "no photo"
 
-    print("\nVenue", str(i+1) + ":", locations["response"]["venues"][i]["name"])
+    print("\nVenue", str(i+1) + ":", name)
     print("Address:", address + ",", city_response + ",", state, postal_code)
     print("Photo ID:", photo_id)
+    #print("lat = ", lat)
+    #print("lng = ", lng)
+
+    # Storing relevant info for Part 2
+    part2_data.append(dict(
+        venue_name = name,
+        venue_photo_url = photo_url,
+        venue_lat = lat,
+        venue_lng = lng
+    ))
+    #print(part2_data[i])
+
+#print(part2_data)
 
 # ----------------------------------------------
 # Part 2: Map data onto Plotly
 # ----------------------------------------------
-#print("----------------Part 2--------------------")
+print("\n----------------Part 2--------------------")
 
-#aaa
+lat_vals = []
+lgn_vals = []
+text_vals = []
+for i in part2_data:
+    lat_vals.append(i["venue_lat"])
+    lgn_vals.append(i["venue_lng"])
+    text_vals.append("<br>"+i["venue_name"]+"<br>"+i["venue_photo_url"])
+
+# Map style
+layout = dict(
+    title = "Top 25 results for '" + location_type + "' in '" + city + "'",
+    autosize = True,
+    hovermode = "closest",
+    mapbox = dict(
+        accesstoken = secret.MAPBOX_TOKEN,
+        # center = dict(
+        #     lat = 38,
+        #     lon = -94
+        # ),
+        zoom = 3,
+    )
+)
+
+fig = go.Figure(data = go.Scattermapbox(
+    lat = lat_vals,
+    lon = lgn_vals,
+    text = text_vals,
+    mode = 'markers',
+    marker_color = 'blue',
+    ))
+
+fig.update_layout(layout)
+fig.write_html('venues.html', auto_open = True)
+print("\nMap created successfully!")
