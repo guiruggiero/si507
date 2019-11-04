@@ -237,7 +237,7 @@ def plot_sites_for_state(state_abbr):
     # Map creation and showing
     fig.update_layout(layout)
     fig.write_html("state_sites.html", auto_open = True)
-    print("\nMap created successfully! Open your browser to view it.\n")
+    print("\nMap 'state_sites.html' created successfully! Open your browser to view it.\n")
 
 def plot_nearby_for_site(site_object):
     lat_vals = []
@@ -300,7 +300,7 @@ def plot_nearby_for_site(site_object):
         # Map creation and showing
         fig.update_layout(layout)
         fig.write_html("nearby_site.html", auto_open = True)
-        print("\nMap created successfully! Open your browser to view it.\n")
+        print("\nMap 'nearby_site.html' created successfully! Open your browser to view it.\n")
 
 # Testing part 1
 #print(len(get_sites_for_state("mi")))

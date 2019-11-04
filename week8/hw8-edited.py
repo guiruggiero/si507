@@ -5,6 +5,7 @@ import json
 import secret
 import plotly
 import plotly.graph_objs as go
+from statistics import mean
 
 # Caching file/dictionary
 CACHE_FNAME = 'cache.json'
@@ -179,10 +180,10 @@ layout = dict(
     mapbox = dict(
         accesstoken = secret.MAPBOX_TOKEN,
         center = dict(
-            lat = lat_vals[0],
-            lon = lgn_vals[0]
+            lat = mean(lat_vals),
+            lon = mean(lgn_vals)
         ),
-        zoom = 13,
+        zoom = 11,
     )
 )
 
