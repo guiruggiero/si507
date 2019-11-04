@@ -1,4 +1,4 @@
-from proj2_nps import *
+from proj2_nps_edited import *
 import unittest
 
 class TestStateSearch(unittest.TestCase): # OK
@@ -76,8 +76,8 @@ class TestMapping(unittest.TestCase):
     # the functions don't return an error!
     def test_show_state_map(self):
         try:
-            plot_sites_for_state('mi')
-            plot_sites_for_state('az')
+            plot_sites_for_state('mi') # OK
+            plot_sites_for_state('az') # OK
         except:
             self.fail()
 
@@ -87,8 +87,8 @@ class TestMapping(unittest.TestCase):
         site2 = NationalSite('National Park',
             'Yellowstone', 'There is a big geyser there.')
         try:
-            plot_nearby_for_site(site1)
-            plot_nearby_for_site(site2)
+            plot_nearby_for_site(site1) # OK
+            plot_nearby_for_site(site2) # OK
         except:
             self.fail()
 
