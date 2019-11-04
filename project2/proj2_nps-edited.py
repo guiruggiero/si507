@@ -16,18 +16,26 @@ try:
 except:
     CACHE_DICTION = {}
 
-# Request/cache function
-def make_request_using_cache(url):
+# Using cache function
+def external_data_using_cache(mode, url):
     unique_ident = url
 
     if unique_ident in CACHE_DICTION:
-        #print("Getting cached data...")
+        print("Getting cached data...")
         return CACHE_DICTION[unique_ident]
     
     else:
-        #print("Making a request for new data...")
-        resp = requests.get(url)
-        CACHE_DICTION[unique_ident] = resp.text
+        print("Making a request for new data...")
+
+        if mode == "scrape":
+            resp = requests.get(url)
+            CACHE_DICTION[unique_ident] = resp.text
+        elif mode == "api":
+            resp = requests.get(url + "&key=" + google_places_key)
+            CACHE_DICTION[unique_ident] = json.loads(resp.text)
+        else:
+            print("Mode not recognized, try again.")
+        
         dumped_json_cache = json.dumps(CACHE_DICTION)
         fw = open(CACHE_FNAME, "w")
         fw.write(dumped_json_cache)
@@ -36,7 +44,7 @@ def make_request_using_cache(url):
         return CACHE_DICTION[unique_ident]
 
 class NationalSite():
-    def __init__(self, type_park, name, desc, url, street, city, state, zipcode):
+    def __init__(self, type_park, name, desc = None, url = None, street = None, city = None, state = None, zipcode = None):
         self.type = type_park
         self.name = name
         self.description = desc
@@ -44,35 +52,36 @@ class NationalSite():
         self.address_street = street
         self.address_city = city
         self.address_state = state
-        self.address_zip = zipcode
+        self.address_zip = str(zipcode)
 
     def __str__(self):
-        print(self.name + " (" + self.type + "): " + self.address_street + ", "
-            + self.address_city + ", " + self.address_state + " " + self.address_zip)
+        return self.name + " (" + self.type + "): " + self.address_street + ", " + self.address_city + ", " + self.address_state + " " + self.address_zip
 
 class NearbyPlace():
     def __init__(self, name):
         self.name = name
 
-## Must return the list of NationalSites for the specified state
-## param: the 2-letter state abbreviation, lowercase
-##        (OK to make it work for uppercase too)
-## returns: list of all of the NationalSites
-##        (e.g., National Parks, National Heritage Sites, etc.) that are listed
-##        for the state at nps.gov
+    def __str__(self):
+        return self.name
+
 def get_sites_for_state(state_abbr):
+    parks = []
+    
     url = "https://www.nps.gov/state/" + state_abbr + "/index.htm"
     #print(url)
-    state_text = make_request_using_cache(url)
+    state_text = external_data_using_cache("scrape", url)
     #print(state_text)
     state_soup = BeautifulSoup(state_text, "html.parser")
     #print(state_soup)
     parks_ul = state_soup.find(id = "list_parks").find_all(class_ = "clearfix")
     #print(parks_ul)
-    i = 0
+
     for li in parks_ul:
-        type_park = li.find("h2").text
-        #print(type_park)
+        try:
+            type_park = li.find("h2").text.strip()
+            #print(type_park)
+        except:
+            type_park = "no park type"
         name = li.find("h3").find("a").text
         #print(name)
         url_middle = li.find("h3").find("a")["href"]
@@ -80,41 +89,74 @@ def get_sites_for_state(state_abbr):
         #print(url)
         url_info = "https://www.nps.gov" + url_middle + "planyourvisit/basicinfo.htm"
         #print(url_info)
-        description = li.find("p").text
+        description = li.find("p").text.strip()
         #print(description)
 
-        park_info_text = make_request_using_cache(url_info)
+        park_info_text = external_data_using_cache("scrape", url_info)
         #print(park_info_text)
         park_info_soup = BeautifulSoup(park_info_text, "html.parser")
         #print(park_info_soup)
-        # park_info = park_info_soup.find_all(itemprop = "address").find_all("span")
-        park_info = park_info_soup.find(class_ = "physical-address-container")
-        print(park_info)
-        # for span in park_info:
-        #     print(span.text)
-        #     if span["itemprop"] == "streetAddress":
-        #         street = span.text
-        #     elif span["itemprop"] == "addressLocality":
-        #         city = span.text
-        #     elif span["itemprop"] == "addressRegion":
-        #         state = span.text
-        #     elif span["itemprop"] == "postalCode":
-        #         zipcode = span.text
-        # print(street)
-        # print(city)
-        # print(state)
-        # print(zipcode)
-        print("="*40)
-        i = i + 1
-    print(i)
+        try:
+            street = park_info_soup.find(itemprop = "streetAddress").text.strip()
+            #print(street)
+        except:
+            street = "no street address"
+        city = park_info_soup.find(itemprop = "addressLocality").text.strip()
+        #print(city)
+        state = park_info_soup.find(itemprop = "addressRegion").text.strip()
+        #print(state)
+        zipcode = park_info_soup.find(itemprop = "postalCode").text.strip()
+        #print(zipcode)
+        #print(len(zipcode))
 
-## Must return the list of NearbyPlaces for the specific NationalSite
-## param: a NationalSite object
-## returns: a list of NearbyPlaces within 10km of the given site
-##          if the site is not found by a Google Places search, this should
-##          return an empty list
+        park = NationalSite(type_park, name, description, url, street, city, state, zipcode)
+        #print(park)
+        parks.append(park)
+    
+    return parks
+
 def get_nearby_places_for_site(national_site):
-    return []
+    places = []
+
+    site_name = national_site.name
+    #print(site_name)
+    site_type = national_site.type
+    #print(site_type)
+
+    url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + site_name + site_type + "&inputtype=textquery&fields=name,formatted_address,geometry"
+    #print(url)
+
+    place_search = external_data_using_cache("api", url)
+    #print(place_search)
+    #print(place_search["candidates"][0]["name"])
+    #print(place_search["candidates"][0]["formatted_address"])
+    try: # another option: if "status" != OK
+        place_lat = place_search["candidates"][0]["geometry"]["location"]["lat"]
+        #print(place_lat)
+        place_lng = place_search["candidates"][0]["geometry"]["location"]["lng"]
+        #print(place_lng)
+    except:
+        return places
+    
+    # Another option to check if Google Places does not return any results
+    #if place_search["status"] != "OK":
+    #    return places
+
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + str(place_lat) + "," + str(place_lng) + "&radius=10000"
+    #print(url)
+
+    nearby_places = external_data_using_cache("api", url)
+    #print(nearby_places)
+    nearby_places_results = nearby_places["results"]
+    #print(nearby_places_results)
+    for result in nearby_places_results:
+        place_name = result["name"]
+        #print(place_name)
+        place = NearbyPlace(place_name)
+        #print(place)
+        places.append(place)
+    
+    return places
 
 ## Must plot all of the NationalSites listed for the state on nps.gov
 ## Note that some NationalSites might actually be located outside the state.
@@ -133,4 +175,12 @@ def plot_sites_for_state(state_abbr):
 def plot_nearby_for_site(site_object):
     pass
 
-get_sites_for_state("mi")
+# Testing part 1
+#print(len(get_sites_for_state("mi")))
+#print(len(get_sites_for_state("az")))
+
+# Testing part 2
+#for i in get_nearby_places_for_site(NationalSite("National Monument", "Sunset Crater Volcano", "A volcano in a crater.")):
+#    print(i)
+#for i in get_nearby_places_for_site(NationalSite("National Park", "Yellowstone", "There is a big geyser there.")):
+#    print(i)
