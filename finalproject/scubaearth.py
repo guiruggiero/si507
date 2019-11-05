@@ -6,6 +6,7 @@ import requests
 from fake_useragent import UserAgent
 from webbot import Browser # https://webbot.readthedocs.io/en/latest/
 from bs4 import BeautifulSoup
+import sqlite3
 
 # # # # # # # # # # # # # # # # # # # #
 #                                     #
@@ -56,7 +57,13 @@ def scrape_scubaearth()
         #for rows results, scrape every page
         #aaa
 
-    #store in database
-    #aaa
+    # Store in database
+    conn = sqlite3.connect('divesites.sqlite')
+    cur = conn.cursor()
+    #cur.execute("SELECT * FROM Employee")
+    #for row in cur:
+    #    print(row)
+    # ...
+    conn.close()
 
 #scrape_scubaearth()

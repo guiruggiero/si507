@@ -302,6 +302,79 @@ def plot_nearby_for_site(site_object):
         fig.write_html("nearby_site.html", auto_open = True)
         print("\nMap 'nearby_site.html' created successfully! Open your browser to view it.\n")
 
+def user_interaction():
+    command = input("\nCiao! Enter a command or 'help' for options: ").strip()
+
+    while command != "exit":
+        if command == "help":
+            print("\nHere is a list of commands you can use:\n")
+            print("   list <state_abbr>")
+            print("       available anytime")
+            print("       lists all National Sites in a state")
+            print("       valid inputs: a two-letter state abbreviation")
+            print("   nearby <result_number>")
+            print("       available only if there is an active site list")
+            print("       list all Places nearby a given result")
+            print("       valid inputs: an integer 1-len(result_set_size)")
+            print("   map <option>")
+            print("       available only if there is an active site or nearby result list")
+            print("       displays the current results on a map")
+            print("   exit")
+            print("       exits the program")
+            print("   help")
+            print("       lists all available commands (these instructions)\n")
+        
+        elif command[:4] == "list":
+            state = command[-2:]
+            print("\nNational Sites in " + state.upper() + "\n")
+            sites = get_sites_for_state(state)
+            i = 1
+            for site in sites:
+                print(i, site)
+                i = i + 1
+            print("\nNow you can type:")
+            print("   - 'nearby <result_number>' to view places near one of the sites above")
+            print("   - 'map sites' to view the site list above on a map")
+            print("   - 'list <state>” to do a search for another state\n")
+        
+        elif command[:6] == "nearby":
+            try:
+                chosen_site = int(command[7:])-1
+                print("\nPlaces near " + sites[chosen_site].name + "\n")
+                places = get_nearby_places_for_site(sites[chosen_site])
+                i = 1
+                for place in places:
+                    print(i, place)
+                    i = i + 1
+                print("\nNow you can type:")
+                print("   - 'map nearby' to view the nearby list above on a map")
+                print("   - 'nearby <result_number>' to view places near another site")
+                print("   - 'map sites' to view the last site list on a map")
+                print("   - 'list <state>” to do a search for another state\n")
+            except:
+                print("\n*** You need a site list first. Try typing 'list <state>'.\n")
+        
+        elif command[:3] == "map":
+            if command[4:] == "sites":
+                try:
+                    plot_sites_for_state(state)
+                except:
+                    print("\n*** You need a site list first. Try typing 'list <state>'.\n")
+            elif command[4:] == "nearby":
+                try:
+                    plot_nearby_for_site(sites[chosen_site])
+                except:
+                    print("\n*** You need a nearby list first. Try typing 'nearby <result_number>' (if you already have a site list).\n")
+            else:
+                print("\n*** Sorry, I did not understand your command. Please try again.\n")
+        
+        else:
+            print("\n*** Sorry, I did not understand your command. Please try again.\n")
+            
+        command = input("Enter a command or 'help' for options: ").strip()
+
+    print("\nThanks for using this program. Arrivederci! :-)\n")
+
 # Testing part 1
 #print(len(get_sites_for_state("mi")))
 #print(len(get_sites_for_state("az")))
@@ -319,74 +392,5 @@ def plot_nearby_for_site(site_object):
 #plot_nearby_for_site(NationalSite("National Park", "Yellowstone", "There is a big geyser there."))
 
 # Part 4
-command = input("\nCiao! Enter a command or 'help' for options: ").strip()
-
-while command != "exit":
-    if command == "help":
-        print("\nHere is a list of commands you can use:\n")
-        print("   list <state_abbr>")
-        print("       available anytime")
-        print("       lists all National Sites in a state")
-        print("       valid inputs: a two-letter state abbreviation")
-        print("   nearby <result_number>")
-        print("       available only if there is an active site list")
-        print("       list all Places nearby a given result")
-        print("       valid inputs: an integer 1-len(result_set_size)")
-        print("   map <option>")
-        print("       available only if there is an active site or nearby result list")
-        print("       displays the current results on a map")
-        print("   exit")
-        print("       exits the program")
-        print("   help")
-        print("       lists all available commands (these instructions)\n")
-    
-    elif command[:4] == "list":
-        state = command[-2:]
-        print("\nNational Sites in " + state.upper() + "\n")
-        sites = get_sites_for_state(state)
-        i = 1
-        for site in sites:
-            print(i, site)
-            i = i + 1
-        print("\nNow you can type:")
-        print("   - 'nearby <result_number>' to view places near one of the sites above")
-        print("   - 'map sites' to view the site list above on a map")
-        print("   - 'list <state>” to do a search for another state\n")
-    
-    elif command[:6] == "nearby":
-        try:
-            chosen_site = int(command[7:])-1
-            print("\nPlaces near " + sites[chosen_site].name + "\n")
-            places = get_nearby_places_for_site(sites[chosen_site])
-            i = 1
-            for place in places:
-                print(i, place)
-                i = i + 1
-            print("\nNow you can type:")
-            print("   - 'map nearby' to view the nearby list above on a map")
-            print("   - 'nearby <result_number>' to view places near another site")
-            print("   - 'map sites' to view the last site list on a map")
-            print("   - 'list <state>” to do a search for another state\n")
-        except:
-            print("\n*** You need a site list first. Try typing 'list <state>'.\n")
-    
-    elif command[:3] == "map":
-        if command[4:] == "sites":
-            try:
-                plot_sites_for_state(state)
-            except:
-                print("\n*** You need a site list first. Try typing 'list <state>'.\n")
-        elif command[4:] == "nearby":
-            try:
-                plot_nearby_for_site(sites[chosen_site])
-            except:
-                print("\n*** You need a nearby list first. Try typing 'nearby <result_number>' (if you already have a site list).\n")
-        else:
-            print("\n*** Sorry, I did not understand your command. Please try again.\n")
-    
-    else:
-        print("\n*** Sorry, I did not understand your command. Please try again.\n")
-        
-    command = input("Enter a command or 'help' for options: ").strip()
-
-print("\nThanks for using this program. Arrivederci! :-)\n")
+if __name__ == '__main__':
+    user_interaction()
