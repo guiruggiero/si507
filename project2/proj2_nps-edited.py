@@ -335,7 +335,7 @@ def user_interaction():
             print("\nNow you can type:")
             print("   - 'nearby <result_number>' to view places near one of the sites above")
             print("   - 'map sites' to view the site list above on a map")
-            print("   - 'list <state>” to do a search for another state\n")
+            print("   - 'list <state>' to do a search for another state\n")
         
         elif command[:6] == "nearby":
             try:
@@ -350,7 +350,7 @@ def user_interaction():
                 print("   - 'map nearby' to view the nearby list above on a map")
                 print("   - 'nearby <result_number>' to view places near another site")
                 print("   - 'map sites' to view the last site list on a map")
-                print("   - 'list <state>” to do a search for another state\n")
+                print("   - 'list <state>' to do a search for another state\n")
             except:
                 print("\n*** You need a site list first. Try typing 'list <state>'.\n")
         
