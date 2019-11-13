@@ -1,4 +1,4 @@
-spinoza$ python3 proj3_choc_solution.py
+$ python3 proj3_choc_solution.py
 
 Enter a command: bars ratings
 Chuao           Amedei          Italy           5.0  70%  Venezuela (B...
