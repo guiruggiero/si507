@@ -57,13 +57,56 @@ def scrape_scubaearth()
         #for rows results, scrape every page
         #aaa
 
-    # Store in database
+    # Storing in database
     conn = sqlite3.connect('divesites.sqlite')
     cur = conn.cursor()
-    #cur.execute("SELECT * FROM Employee")
-    #for row in cur:
-    #    print(row)
-    # ...
+
+    # Dropping tables
+    statement = "DROP TABLE IF EXISTS 'Divesites';"
+    cur.execute(statement)
+    # print("\nTable 'Divesites' dropped (if existed)")
+
+    # Other tables ...
+
+    conn.commit()
+
+    # Creating tables
+    # Table 'Divesites' ...
+    # statement = """
+    #     CREATE TABLE 'Divesites' (
+    #         'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
+    #         'Company' TEXT NOT NULL,
+    #         'SpecificBeanBarName' TEXT NOT NULL,
+    #         'REF' TEXT NOT NULL,
+    #         'ReviewDate' TEXT NOT NULL,
+    #         'CocoaPercent' REAL NOT NULL,
+    #         'CompanyLocationId' INTEGER NOT NULL,
+    #         'Rating' REAL NOT NULL,
+    #         'BeanType' TEXT,
+    #         'BroadBeanOriginId' INTEGER NOT NULL,
+    #     );
+    # """
+    cur.execute(statement)
+    # print("Table 'Divesites' created")
+
+    # Other tables ...
+
+    conn.commit()
+
+    # Inserting data
+    # Table 'Divesites' ...
+    # i = 0
+    # for n in name:
+    #     insertion = (None, alpha2[i], alpha3[i], name[i], region[i], subregion[i], population[i], area[i])
+    #     statement = 'INSERT INTO "Countries" '
+    #     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    #     cur.execute(statement, insertion)
+    #     i += 1
+
+    # Other tables ...
+
+    conn.commit()
+
     conn.close()
 
 #scrape_scubaearth()
