@@ -10,25 +10,25 @@ statement = '''
     DROP TABLE IF EXISTS 'Airport';
 '''
 cur.execute(statement)
-print("\nTable 'Airport' dropped (if existed)")
+# print("\nTable 'Airport' dropped (if existed)")
 
 statement = '''
     DROP TABLE IF EXISTS 'City';
 '''
 cur.execute(statement)
-print("Table 'City' dropped (if existed)")
+# print("Table 'City' dropped (if existed)")
 
 statement = '''
     DROP TABLE IF EXISTS 'State';
 '''
 cur.execute(statement)
-print("Table 'State' dropped (if existed)")
+# print("Table 'State' dropped (if existed)")
 
 statement = '''
     DROP TABLE IF EXISTS 'Country';
 '''
 cur.execute(statement)
-print("Table 'Country' dropped (if existed)")
+# print("Table 'Country' dropped (if existed)")
 
 conn.commit()
 
@@ -40,28 +40,31 @@ statement = '''
     );
 '''
 cur.execute(statement)
-print("Table 'Country' created")
+# print("Table 'Country' created")
 
 statement = '''
     CREATE TABLE 'State' (
         'state_id' INTEGER PRIMARY KEY AUTOINCREMENT,
         'state_abbrev' TEXT NOT NULL,
         'country_id' INTEGER NOT NULL,
+        FOREIGN KEY(country_id) REFERENCES Country(country_id),
     );
 '''
 cur.execute(statement)
-print("Table 'State' created")
+# print("Table 'State' created")
 
 statement = '''
     CREATE TABLE 'City' (
         'city_id' INTEGER PRIMARY KEY AUTOINCREMENT,
         'city_name' TEXT NOT NULL,
         'state_id' INTEGER,
+        FOREIGN KEY(state_id) REFERENCES State(state_id),
         'country_id' INTEGER NOT NULL,
+        FOREIGN KEY(country_id) REFERENCES Country(country_id),
     );
 '''
 cur.execute(statement)
-print("Table 'City' created")
+# print("Table 'City' created")
 
 statement = '''
     CREATE TABLE 'Airport' (
@@ -71,11 +74,12 @@ statement = '''
         'lat' REAL,
         'long' REAL,
         'city_id' INTEGER NOT NULL,
+        FOREIGN KEY(city_id) REFERENCES City(city_id),
         'traffic' INTEGER,
     );
 '''
 cur.execute(statement)
-print("Table 'Airport' created")
+# print("Table 'Airport' created")
 
 conn.commit()
 
@@ -103,26 +107,52 @@ for row in csv_data:
         lgn.append(row[6])
         traffic.append(row[7])
 
+# i = 0
+# print(iata[i])
+# print(airport[i])
+# print(city[i])
+# print(state[i])
+# print(country[i])
+# print(lat[i])
+# print(lgn[i])
+# print(traffic[i])
+
+# Inserting data into database
+# Table 'Country'
 i = 0
-print(iata[i])
-print(airport[i])
-print(city[i])
-print(state[i])
-print(country[i])
-print(lat[i])
-print(lgn[i])
-print(traffic[i])
+for c in country:
+    insertion = (None, country[i])
+    statement = 'INSERT INTO "Countries" '
+    statement += 'VALUES (?, ?)'
+    cur.execute(statement, insertion)
+    i += 1
 
-# Inserting data into database - how to establish relationships?
+# Table 'State'
+i = 0
+for s in state:
+    insertion = (None, state[i], "...") # flag
+    statement = 'INSERT INTO "State" '
+    statement += 'VALUES (?, ?, ?)'
+    cur.execute(statement, insertion)
+    i += 1
 
-# instructors = [['Mark', 'Newman', 'mwnewman', '4380 NQ'],
-#             ['Jackie', 'Cohen', 'jczetta', '3333 NQ'],
-#             ['Steven', 'Oney', 'soney', '4366 NQ']]
-# for inst in instructors:
-#     insertion = (None, inst[0], inst[1], inst[2], inst[3])
-#     statement = 'INSERT INTO "Instructors" '
-#     statement += 'VALUES (?, ?, ?, ?, ?)'
-#     cur.execute(statement, insertion)
+# Table 'City'
+i = 0
+for c in city:
+    insertion = (None, city[i], "state ...", "country...") # flag
+    statement = 'INSERT INTO "City" '
+    statement += 'VALUES (?, ?, ?, ?)'
+    cur.execute(statement, insertion)
+    i += 1
+
+# Table 'Airport'
+i = 0
+for a in airport:
+    insertion = (None, iata[i], airport[i], lat[i], lgn[i], "city ...", traffic[i]) # flag
+    statement = 'INSERT INTO "Airport" '
+    statement += 'VALUES (?, ?, ?, ?, ?, ?, ?)'
+    cur.execute(statement, insertion)
+    i += 1
 
 conn.commit()
 
@@ -135,7 +165,7 @@ statement = 'UPDATE Airport '
 statement += 'SET traffic = ? '
 statement += 'WHERE iata = ?'
 
-print(statement)
+# print(statement)
 cur.execute(statement)
 
 conn.commit()
@@ -147,7 +177,7 @@ statement += "JOIN State ON City.state_id = State.state_id "
 statement += "WHERE State.state_abbrev = 'MI'"
 
 cur.execute(statement)
-for row in cur:
-    print(row)
+# for row in cur:
+#     print(row)
 
 conn.close()

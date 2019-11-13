@@ -89,24 +89,6 @@ conn.commit()
 
 # Creating tables
 statement = """
-    CREATE TABLE 'Bars' (
-        'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
-        'Company' TEXT NOT NULL,
-        'SpecificBeanBarName' TEXT NOT NULL,
-        'REF' TEXT NOT NULL,
-        'ReviewDate' TEXT NOT NULL,
-        'CocoaPercent' REAL NOT NULL,
-        'CompanyLocationId' INTEGER NOT NULL,
-        'Rating' REAL NOT NULL,
-        'BeanType' TEXT,
-        'BroadBeanOriginId' INTEGER NOT NULL,
-    );
-"""
-cur.execute(statement)
-# print("Table 'Bars' created")
-
-# NOT NULL???
-statement = """
     CREATE TABLE 'Countries' (
         'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
         'Alpha2' TEXT,
@@ -121,6 +103,25 @@ statement = """
 cur.execute(statement)
 # print("Table 'Countries' created")
 
+statement = """
+    CREATE TABLE 'Bars' (
+        'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
+        'Company' TEXT,
+        'SpecificBeanBarName' TEXT,
+        'REF' TEXT,
+        'ReviewDate' TEXT,
+        'CocoaPercent' REAL,
+        'CompanyLocationId' INTEGER,
+        FOREIGN KEY(CompanyLocationId) REFERENCES Countries(Id),
+        'Rating' REAL,
+        'BeanType' TEXT,
+        'BroadBeanOriginId' INTEGER,
+        FOREIGN KEY(BroadBeanOriginId) REFERENCES Countries(Id),
+    );
+"""
+cur.execute(statement)
+# print("Table 'Bars' created")
+
 conn.commit()
 
 # Inserting data into database
@@ -133,12 +134,16 @@ for n in name:
     cur.execute(statement, insertion)
     i += 1
 
-# Table 'Bars' - foreign key???
-#aaa
+# Table 'Bars'
+i = 0
+for b in bean_name:
+    insertion = (None, company[i], bean_name[i], ref[i], review[i], cocoa[i], "location ...", rating[i], bean_type[i], "bean_origin ...") # flag
+    statement = 'INSERT INTO "Bars" '
+    statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    cur.execute(statement, insertion)
+    i += 1
 
 conn.commit()
-
-
 
 # Part 2: Implement logic to process user commands
 def process_command(command):
