@@ -146,14 +146,15 @@ for b in bean_name:
 conn.commit()
 
 # Part 2: Implement logic to process user commands
-def process_command(command):
-    return []
-
 def load_help_text():
     with open("help.txt") as f:
         return f.read()
 
+def process_command(command):
+    
+    
 
+    return ()
 
 # Part 3: Implement interactive prompt. We've started for you!
 def interactive_prompt():
@@ -161,12 +162,12 @@ def interactive_prompt():
     response = ""
     while response != "exit":
         response = input("Enter a command: ")
+        query = process_command(response.strip())
+        # run SELECT ...
 
         if response == "help":
             print(help_text)
             continue
-
-
 
 # Only runs when this file is run directly
 if __name__=="__main__":

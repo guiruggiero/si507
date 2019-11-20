@@ -46,7 +46,7 @@ statement = '''
     CREATE TABLE 'State' (
         'state_id' INTEGER PRIMARY KEY AUTOINCREMENT,
         'state_abbrev' TEXT NOT NULL,
-        'country_id' INTEGER NOT NULL,
+        'country_id' INTEGER,
         FOREIGN KEY(country_id) REFERENCES Country(country_id),
     );
 '''
@@ -59,7 +59,7 @@ statement = '''
         'city_name' TEXT NOT NULL,
         'state_id' INTEGER,
         FOREIGN KEY(state_id) REFERENCES State(state_id),
-        'country_id' INTEGER NOT NULL,
+        'country_id' INTEGER,
         FOREIGN KEY(country_id) REFERENCES Country(country_id),
     );
 '''
@@ -73,7 +73,7 @@ statement = '''
         'airport_name' TEXT NOT NULL,
         'lat' REAL,
         'long' REAL,
-        'city_id' INTEGER NOT NULL,
+        'city_id' INTEGER,
         FOREIGN KEY(city_id) REFERENCES City(city_id),
         'traffic' INTEGER,
     );
