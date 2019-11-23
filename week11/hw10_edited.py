@@ -1,9 +1,17 @@
 '''
-SI 507 F18 homework 9: Basic SQL statements
+SI 507 F19, homework 11: Basic SQL statements
 Developed by Gui Ruggiero
 '''
 
 import sqlite3 as sqlite
+
+'''
+NOTES TO GRADER
+- Overall: I'm assuming the content of the cursor is what needs to be returned. It is a
+list of tuples which I iterate to print data, after all.
+- Question 8: I'm assuming  "names of customer" in this context is the company name,
+not the name of the contact. It is a bit confusing since companies don't "live" in a country.
+'''
 
 conn = sqlite.connect("Northwind_small.sqlite")
 cur = conn.cursor()
@@ -20,7 +28,7 @@ def question1():
     for row in cur:
         print(row[0], "\t|", row[1])
     
-    pass
+    return cur
 question1()
 
 #----- Q2. How many customers are there? 
@@ -33,7 +41,7 @@ def question2():
     for row in cur:
         print("Number of customers:", row[0])
 
-    pass
+    return cur
 question2()
 
 #----- Q3. How many orders have been made? 
@@ -46,7 +54,7 @@ def question3():
     for row in cur:
         print("Number of orders:", row[0])
 
-    pass
+    return cur
 question3()
 
 #----- Q4. Show the first five rows from the Product table 
@@ -84,7 +92,7 @@ def question4():
                 "\t\t|", row[8], "\t\t|", row[9])
         i += 1
 
-    pass
+    return cur
 question4()
 
 #----- Q5. Show the names of the five cheapest products 
@@ -98,9 +106,9 @@ def question5():
 
     print("Top5 cheapest products:")
     for row in cur:
-        print("\t" + row[0])
+        print("\t", row[0])
     
-    pass
+    return cur
 question5()
 
 #----- Q6. Show the names and number of units in stock of all products that have more than 100 units in stock  
@@ -123,7 +131,7 @@ def question6():
             print(row[0], "\t\t\t|", row[1])
         i += 1
     
-    pass
+    return cur
 question6()
 
 #----- Q7. Show all column names in the Order table 
@@ -136,23 +144,54 @@ def question7():
     for column in cur.description:
         print("\t", column[0])
     
-    pass
+    return cur
 question7()
 
 #----- Q8. Show the names of all customers who lives in USA and have a fax number on record.
 print('\n' + '-'*20 + "Question 8" + '-'*20)
 def question8():
-    pass
+    statement = "SELECT CompanyName "
+    statement += "FROM Customer "
+    statement += "WHERE Country = 'USA' AND Fax IS NOT NULL"
+    cur.execute(statement)
+
+    print("Customers from the US with fax number:")
+    for row in cur:
+        print("\t", row[0])
+
+    return cur
+question8()
 
 #----- Q9. Show the names of all the products, if any, that requires a reorder. 
 # (If the units in stock of a product is lower than its reorder level but there's no units of the product currently on order, the product requires a reorder) 
 print('\n' + '-'*20 + "Question 9" + '-'*20)
 def question9():
-    pass
+    statement = "SELECT ProductName "
+    statement += "FROM Product "
+    statement += "WHERE UnitsInStock < ReorderLevel AND UnitsOnOrder = 0"
+    cur.execute(statement)
+
+    print("Product(s) that require a reorder:")
+    for row in cur:
+        print("\t", row[0])
+
+    return cur
+question9()
 
 #----- Q10. Show ids of all the orders that ship to France where postal code starts with "44"
 print('\n' + '-'*20 + "Question 10" + '-'*20)
 def question10():
-    pass
+    statement = "SELECT Id "
+    statement += "FROM [Order] "
+    statement += "WHERE ShipCountry = 'France' AND ShipPostalCode LIKE '44%'"
+    cur.execute(statement)
+
+    print("IDs of orders shipped to France with postal code starting with 44:")
+    for row in cur:
+        print("\t", row[0])
+
+    print('\n')
+    return cur
+question10()
 
 conn.close()
