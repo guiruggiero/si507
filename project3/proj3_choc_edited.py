@@ -9,6 +9,30 @@ DBNAME = "choc.db"
 BARSCSV = "flavors_of_cacao_cleaned.csv"
 COUNTRIESJSON = "countries.json"
 
+# Reading JSON
+with open(COUNTRIESJSON) as json_file:
+    json_data = json.load(json_file)
+    # print(json_data)
+    # print(json_data[0])
+
+alpha2 = []
+alpha3 = []
+name = []
+region = []
+subregion = []
+population = []
+area = []
+
+for country in json_data:
+    # print(country)
+    alpha2.append(country["alpha2Code"])
+    alpha3.append(country["alpha3Code"])
+    name.append(country["name"])
+    region.append(country["region"])
+    subregion.append(country["subregion"])
+    population.append(country["population"])
+    area.append(country["area"])
+
 # Reading CSV
 csv_file = open(BARSCSV)
 csv_data = csv.reader(csv_file)
@@ -48,42 +72,18 @@ for row in csv_data:
 # print(bean_type[i])
 # print(bean_origin[i])
 
-# Reading JSON
-with open(COUNTRIESJSON) as json_file:
-    json_data = json.load(json_file)
-    # print(json_data)
-    # print(json_data[0])
-
-alpha2 = []
-alpha3 = []
-name = []
-region = []
-subregion = []
-population = []
-area = []
-
-for country in json_data:
-    # print(country)
-    alpha2.append(country["alpha2Code"])
-    alpha3.append(country["alpha3Code"])
-    name.append(country["name"])
-    region.append(country["region"])
-    subregion.append(country["subregion"])
-    population.append(country["population"])
-    area.append(country["area"])
-
 # Creating DB
 conn = sqlite3.connect(DBNAME)
 cur = conn.cursor()
 
 # Dropping tables
-statement = "DROP TABLE IF EXISTS 'Bars';"
-cur.execute(statement)
-# print("\nTable 'Bars' dropped (if existed)")
-
 statement = "DROP TABLE IF EXISTS 'Countries';"
 cur.execute(statement)
 # print("Table 'Countries' dropped (if existed)")
+
+statement = "DROP TABLE IF EXISTS 'Bars';"
+cur.execute(statement)
+# print("\nTable 'Bars' dropped (if existed)")
 
 conn.commit()
 
@@ -133,32 +133,49 @@ for n in name:
     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     cur.execute(statement, insertion)
     i += 1
+conn.commit()
 
 # Table 'Bars'
 i = 0
 for b in bean_name:
-    insertion = (None, company[i], bean_name[i], ref[i], review[i], cocoa[i], "location ...", rating[i], bean_type[i], "bean_origin ...") # flag
+    statement = "SELECT Id "
+    statement += "FROM Countries "
+    statement += "WHERE EnglishName = " + location[i]
+    cur.execute(statement)
+    for row in cur:
+        location_id = row[0]
+        # print(location_id)
+
+    statement = "SELECT Id "
+    statement += "FROM Countries "
+    statement += "WHERE EnglishName = " + bean_origin[i]
+    cur.execute(statement)
+    for row in cur:
+        bean_origin_id = row[0]
+        # print(bean_origin_id)
+
+    insertion = (None, company[i], bean_name[i], ref[i], review[i], cocoa[i], location_id, rating[i], bean_type[i], bean_origin_id)
     statement = 'INSERT INTO "Bars" '
     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
     cur.execute(statement, insertion)
     i += 1
-
 conn.commit()
 
 # Part 2: Implement logic to process user commands
 def load_help_text():
     with open("help.txt") as f:
+        # contents = f.read()
+        # print(contents)
         return f.read()
 
 def process_command(command):
-    
-    
-
+    # aaa
     return ()
 
 # Part 3: Implement interactive prompt. We've started for you!
 def interactive_prompt():
     help_text = load_help_text()
+    # print(help_text)
     response = ""
     while response != "exit":
         response = input("Enter a command: ")
@@ -171,4 +188,5 @@ def interactive_prompt():
 
 # Only runs when this file is run directly
 if __name__=="__main__":
-    interactive_prompt()
+    # interactive_prompt()
+    pass
