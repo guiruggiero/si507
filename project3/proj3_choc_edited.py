@@ -23,6 +23,7 @@ subregion = []
 population = []
 area = []
 
+# i = 0
 for country in json_data:
     # print(country)
     alpha2.append(country["alpha2Code"])
@@ -32,12 +33,18 @@ for country in json_data:
     subregion.append(country["subregion"])
     population.append(country["population"])
     area.append(country["area"])
+    # i += 1
+
+# print(i) # 250
+# print(alpha2)
+# print(len(alpha2))
+# print(area)
+# print(len(alpha2))
 
 # Reading CSV
 csv_file = open(BARSCSV)
 csv_data = csv.reader(csv_file)
 # print(csv_data)
-csv_file.close()
 
 company = []
 bean_name = []
@@ -49,7 +56,9 @@ rating = []
 bean_type = []
 bean_origin = []
 
+# i = 0
 for row in csv_data:
+    # print(row)
     if row[0] != "Company":
         company.append(row[0])
         bean_name.append(row[1])
@@ -60,7 +69,9 @@ for row in csv_data:
         rating.append(row[6])
         bean_type.append(row[7])
         bean_origin.append(row[8])
+        # i += 1
 
+# print(i) # 1795
 # i = 0
 # print(company[i])
 # print(bean_name[i])
@@ -83,7 +94,7 @@ cur.execute(statement)
 
 statement = "DROP TABLE IF EXISTS 'Bars';"
 cur.execute(statement)
-# print("\nTable 'Bars' dropped (if existed)")
+# print("Table 'Bars' dropped (if existed)")
 
 conn.commit()
 
@@ -97,7 +108,7 @@ statement = """
         'Region' TEXT,
         'Subregion' TEXT,
         'Population' INTEGER,
-        'Area' REAL,
+        'Area' REAL
     );
 """
 cur.execute(statement)
@@ -112,11 +123,11 @@ statement = """
         'ReviewDate' TEXT,
         'CocoaPercent' REAL,
         'CompanyLocationId' INTEGER,
-        FOREIGN KEY(CompanyLocationId) REFERENCES Countries(Id),
         'Rating' REAL,
         'BeanType' TEXT,
         'BroadBeanOriginId' INTEGER,
-        FOREIGN KEY(BroadBeanOriginId) REFERENCES Countries(Id),
+        FOREIGN KEY(CompanyLocationId) REFERENCES Countries(Id),
+        FOREIGN KEY(BroadBeanOriginId) REFERENCES Countries(Id)
     );
 """
 cur.execute(statement)
@@ -125,7 +136,6 @@ cur.execute(statement)
 conn.commit()
 
 # Inserting data into database
-# Table 'Countries'
 i = 0
 for n in name:
     insertion = (None, alpha2[i], alpha3[i], name[i], region[i], subregion[i], population[i], area[i])
@@ -134,59 +144,66 @@ for n in name:
     cur.execute(statement, insertion)
     i += 1
 conn.commit()
+# print(i)
 
-# Table 'Bars'
 i = 0
 for b in bean_name:
+    # print(location[i])
     statement = "SELECT Id "
     statement += "FROM Countries "
-    statement += "WHERE EnglishName = " + location[i]
+    statement += "WHERE EnglishName = '" + location[i] + "'"
+    # print(statement)
     cur.execute(statement)
     for row in cur:
-        location_id = row[0]
+        # print(row)
+        location_id = int(row[0])
         # print(location_id)
 
+    # print(bean_origin[i])
     statement = "SELECT Id "
     statement += "FROM Countries "
-    statement += "WHERE EnglishName = " + bean_origin[i]
+    statement += "WHERE EnglishName = '" + bean_origin[i] + "'"
+    # print(statement)
     cur.execute(statement)
-    for row in cur:
-        bean_origin_id = row[0]
+#    for row in cur:
+        # print(row)
+#        bean_origin_id = int(row[0])
         # print(bean_origin_id)
 
-    insertion = (None, company[i], bean_name[i], ref[i], review[i], cocoa[i], location_id, rating[i], bean_type[i], bean_origin_id)
-    statement = 'INSERT INTO "Bars" '
-    statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    cur.execute(statement, insertion)
+#     insertion = (None, company[i], bean_name[i], ref[i], review[i], cocoa[i], location_id, rating[i], bean_type[i], bean_origin_id)
+#     statement = 'INSERT INTO "Bars" '
+#     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+#     cur.execute(statement, insertion)
     i += 1
-conn.commit()
+# conn.commit()
+print(i)
 
-# Part 2: Implement logic to process user commands
-def load_help_text():
-    with open("help.txt") as f:
-        # contents = f.read()
-        # print(contents)
-        return f.read()
+# # Part 2: Implement logic to process user commands
+# def load_help_text():
+#     with open("help.txt") as f:
+#         # contents = f.read()
+#         # print(contents)
+#         return f.read()
 
-def process_command(command):
-    # aaa
-    return ()
+# def process_command(command):
+#     # aaa
+#     return ()
 
-# Part 3: Implement interactive prompt. We've started for you!
-def interactive_prompt():
-    help_text = load_help_text()
-    # print(help_text)
-    response = ""
-    while response != "exit":
-        response = input("Enter a command: ")
-        query = process_command(response.strip())
-        # run SELECT ...
+# # Part 3: Implement interactive prompt. We've started for you!
+# def interactive_prompt():
+#     help_text = load_help_text()
+#     # print(help_text)
+#     response = ""
+#     while response != "exit":
+#         response = input("Enter a command: ")
+#         query = process_command(response.strip())
+#         # run SELECT ...
 
-        if response == "help":
-            print(help_text)
-            continue
+#         if response == "help":
+#             print(help_text)
+#             continue
 
-# Only runs when this file is run directly
-if __name__=="__main__":
-    # interactive_prompt()
-    pass
+# # Only runs when this file is run directly
+# if __name__=="__main__":
+#     # interactive_prompt()
+#     pass
