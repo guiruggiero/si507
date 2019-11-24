@@ -136,17 +136,17 @@ cur.execute(statement)
 conn.commit()
 
 # Inserting data into database
-i = 0
+# i = 0
 for n in name:
     insertion = (None, alpha2[i], alpha3[i], name[i], region[i], subregion[i], population[i], area[i])
     statement = 'INSERT INTO "Countries" '
     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     cur.execute(statement, insertion)
-    i += 1
+    # i += 1
 conn.commit()
 # print(i)
 
-i = 0
+# i = 0
 for b in bean_name:
     # print(location[i])
     statement = "SELECT Id "
@@ -162,48 +162,126 @@ for b in bean_name:
     # print(bean_origin[i])
     statement = "SELECT Id "
     statement += "FROM Countries "
-    statement += "WHERE EnglishName = '" + bean_origin[i] + "'"
+    statement += 'WHERE EnglishName = "' + bean_origin[i] + '"'
     # print(statement)
     cur.execute(statement)
-#    for row in cur:
+    for row in cur:
         # print(row)
-#        bean_origin_id = int(row[0])
+        bean_origin_id = int(row[0])
         # print(bean_origin_id)
 
-#     insertion = (None, company[i], bean_name[i], ref[i], review[i], cocoa[i], location_id, rating[i], bean_type[i], bean_origin_id)
-#     statement = 'INSERT INTO "Bars" '
-#     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-#     cur.execute(statement, insertion)
-    i += 1
-# conn.commit()
-print(i)
+    insertion = (None, company[i], bean_name[i], ref[i], review[i], cocoa[i], location_id, rating[i], bean_type[i], bean_origin_id)
+    statement = 'INSERT INTO "Bars" '
+    statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    cur.execute(statement, insertion)
+    # i += 1
+conn.commit()
+# print(i)
 
-# # Part 2: Implement logic to process user commands
-# def load_help_text():
-#     with open("help.txt") as f:
-#         # contents = f.read()
-#         # print(contents)
-#         return f.read()
+# Part 2: Implement logic to process user commands
+def load_help_text():
+    with open("help.txt") as f:
+        # contents = f.read()
+        # print(contents)
+        return f.read()
+# load_help_text()
 
-# def process_command(command):
-#     # aaa
-#     return ()
+def process_command(command):
+    # print(command)
+    
+    # breaking command in parts
+    original_command = command
+    # print(original_command)
+    
+    space = original_command.find(" ")
+    # print(space)
+    if space < 0: # no other command, so all defaults
+        '''Defaults
+        bars        none    ratings top=10
+        companies   none    ratings top=10
+        regions     sellers ratings top=10
+        countries   none    sellers ratings top=10
+        '''
+        first = original_command
+        # print(first)
+        if first in ["bars", "companies", "regions"]:
+            third = "ratings"
+            fourth = "top=10"
+            if first == "regions":
+                second = "sellers"
+            else:
+                second = "none"
+        else:
+            second = "none"
+            third = "sellers"
+            fourth = "ratings"
+            fifth = "top=10"
+    
+    else: # more than one command
+        first = original_command[:original_command.find(" ")]
+        # print(first)
+        remainder_first = original_command[original_command.find(" ") + 1:]
+        # print(remainder_first)
 
-# # Part 3: Implement interactive prompt. We've started for you!
-# def interactive_prompt():
-#     help_text = load_help_text()
-#     # print(help_text)
-#     response = ""
-#     while response != "exit":
-#         response = input("Enter a command: ")
-#         query = process_command(response.strip())
-#         # run SELECT ...
+        space = remainder_first.find(" ")
+        if space < 0: # no other command, so all defaults
+            #aaa
 
-#         if response == "help":
-#             print(help_text)
-#             continue
+    
+    second = remainder_first[:remainder_first.find(" ")]
+    # print(second)
+    remainder_second = remainder_first[remainder_first.find(" ") + 1:]
+    # print(remainder_second)
+    third = remainder_second[:remainder_second.find(" ")]
+    # print(third)
+    remainder_third = remainder_second[remainder_second.find(" ") + 1:]
+    # print(remainder_third)
+    fourth = remainder_third[:remainder_third.find(" ")]
+    # print(fourth)
+    fifth = remainder_third[remainder_third.find(" ") + 1:]
+    # print(fifth)
+    
 
-# # Only runs when this file is run directly
-# if __name__=="__main__":
-#     # interactive_prompt()
-#     pass
+
+
+
+
+    # executing query
+
+    return cur
+
+# Part 3: Implement interactive prompt. We've started for you!
+def interactive_prompt():
+    help_text = load_help_text()
+    # print(help_text)
+    response = input("\nCiao! Enter a command, 'help' or 'exit': ").strip()
+    while response != "exit":
+        try:
+            first_word = response[:response.find(" ") - 1]
+        except:
+            first_word = response
+        
+        if response == "help":
+            print(help_text)
+
+        elif first_word in ["bars", "companies", "countries", "regions"]:
+            query_data = process_command(response)
+
+            # format printing
+
+            # print("Name\t\t\t\t| In stock")
+            # print("-"*43)
+            # for row in query_data:
+            #     print(row[0], "\t|", row[1])
+        
+        else:
+            print("\nSorry, I did not understand your command. Please try again.\n")
+
+        response = input("Enter a command, 'help' or 'exit': ").strip()
+    
+    print("\nThanks for using this program. Arrivederci! :-)\n")
+
+# Only runs when this file is run directly
+if __name__=="__main__":
+    # interactive_prompt()
+    pass
