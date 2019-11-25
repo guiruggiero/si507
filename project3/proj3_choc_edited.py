@@ -136,17 +136,17 @@ cur.execute(statement)
 conn.commit()
 
 # Inserting data into database
-# i = 0
+i = 0
 for n in name:
     insertion = (None, alpha2[i], alpha3[i], name[i], region[i], subregion[i], population[i], area[i])
     statement = 'INSERT INTO "Countries" '
     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     cur.execute(statement, insertion)
-    # i += 1
+    i += 1
 conn.commit()
 # print(i)
 
-# i = 0
+i = 0
 for b in bean_name:
     # print(location[i])
     statement = "SELECT Id "
@@ -174,21 +174,16 @@ for b in bean_name:
     statement = 'INSERT INTO "Bars" '
     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
     cur.execute(statement, insertion)
-    # i += 1
+    i += 1
 conn.commit()
 # print(i)
 
 # Part 2: Implement logic to process user commands
 def load_help_text():
     with open("help.txt") as f:
-        # contents = f.read()
-        # print(contents)
         return f.read()
-# load_help_text()
 
 def process_command(command):
-    # print(command)
-    
     # breaking command in parts
     original_command = command
     # print(original_command)
@@ -198,7 +193,6 @@ def process_command(command):
 
     if space < 1: # only 1 command (use all defaults)
         first = original_command
-        # print(first)
         
         if first in ["bars", "companies", "regions"]:
             third = "ratings"
@@ -208,16 +202,25 @@ def process_command(command):
                 second = "sellers"
             else:
                 second = "none"
-        else:
+        else: # countries
             second = "none"
             third = "sellers"
             fourth = "ratings"
             fifth = "top"
             fifth_value = "10"
-    
+
+        # print(first)
+        # print(second)
+        # print(third)
+        # print(fourth)
+        # # print(fourth_value)
+        # # print(fifth)
+        # # print(fifth_value)
+
     else: # 2, 3 or 4 commands
         first = original_command[:space]
-        # print(first)
+        print(first)
+        # print(len(first))
         remainder_first = original_command[space + 1:]
         # print(remainder_first)
 
@@ -231,15 +234,12 @@ def process_command(command):
                 if remainder_first in ["ratings", "cocoa"]:
                     second = "none"
                     third = remainder_first
-                    # print(third)
                     fourth = "top"
                     fourth_value = "10"
                 
                 elif equal > 6:
                     second = remainder_first[:equal]
-                    # print(second)
                     second_value = str(remainder_first[equal + 1:])
-                    # print(second_value)
                     third = "ratings"
                     fourth = "top"
                     fourth_value = "10"
@@ -248,70 +248,55 @@ def process_command(command):
                     second = "none"
                     third = "ratings"
                     fourth = remainder_first[:equal]
-                    # print(fourth)
                     fourth_value = str(remainder_first[equal + 1:])
-                    # print(fourth_value)
 
             else: # 3 or 4 commands
                 second = remainder_first[:space]
-                # print(second)
                 remainder_second = remainder_first[space + 1:]
-                # print(remainder_second)
                 
                 space = remainder_second.find(" ")
-                # print(space)
                 equal = remainder_second.find("=")
-                # print(equal)
 
                 if space < 1: # 3 commands
                     if second in ["ratings", "cocoa"]: # other commands (3rd, 4th)
                         third = second
-                        # print(third)
                         second = "none"
                         fourth = remainder_second[:equal]
-                        # print(fourth)
                         fourth_value = str(remainder_second[equal + 1:])
-                        # print(fourth_value)
                     
                     else: # other commands (2nd, 3rd), (2nd, 4th)
                         temp = second
                         equal2 = temp.find("=")
-                        # print(equal2)
                         second = temp[:equal2]
-                        # print(second)
                         second_value = temp[equal2 + 1:]
-                        # print(second_equal)
 
                         if equal < 1: # other commands (2nd, 3rd)
                             third = remainder_second
-                            # print(third)
                             fourth = "top"
                             fourth_value = "10"
                     
                         else: # other commands (2nd, 4th)
                             third = "ratings"
                             fourth = remainder_second[:equal]
-                            # print(fourth)
                             fourth_value = str(remainder_second[equal + 1:])
-                            # print(fourth_value)
                 
                 else: # 4 commands
                     temp = second
                     equal2 = temp.find("=")
-                    # print(equal2)
                     second = temp[:equal2]
-                    # print(second)
                     second_value = temp[equal2 + 1:]
-                    # print(second_equal)
                     third = remainder_second[:space]
-                    # print(third)
                     remainder_third = remainder_second[space + 1:]
-                    # print(remainder_third)
                     equal = remainder_third.find("=")
-                    # print(equal)
                     fourth = remainder_third[:equal]
-                    # print(fourth)
                     fourth_value = remainder_third[equal + 1:]
+            
+            print(first)
+            print(second)
+            print(second_value)
+            print(third)
+            print(fourth)
+            print(fourth_value)
 
         elif first == "companies":
             pass
@@ -335,11 +320,15 @@ def interactive_prompt():
     # print(help_text)
     response = input("\nCiao! Enter a command, 'help' or 'exit': ").strip()
     while response != "exit":
-        try:
-            first_word = response[:response.find(" ")]
-        except:
+        space = response.find(" ")
+        # print(space)
+        if space < 1:
             first_word = response
-        
+        else:
+            first_word = response[:space]
+        # print(first_word)
+        # print(len(first_word))
+
         if response == "help":
             print(help_text)
 
