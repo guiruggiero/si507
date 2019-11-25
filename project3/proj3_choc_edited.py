@@ -195,18 +195,15 @@ def process_command(command):
     
     space = original_command.find(" ")
     # print(space)
-    if space < 0: # no other command, so all defaults
-        '''Defaults
-        bars        none    ratings top=10
-        companies   none    ratings top=10
-        regions     sellers ratings top=10
-        countries   none    sellers ratings top=10
-        '''
+
+    if space < 1: # only 1 command (use all defaults)
         first = original_command
         # print(first)
+        
         if first in ["bars", "companies", "regions"]:
             third = "ratings"
-            fourth = "top=10"
+            fourth = "top"
+            fourth_value = "10"
             if first == "regions":
                 second = "sellers"
             else:
@@ -215,36 +212,118 @@ def process_command(command):
             second = "none"
             third = "sellers"
             fourth = "ratings"
-            fifth = "top=10"
+            fifth = "top"
+            fifth_value = "10"
     
-    else: # more than one command
-        first = original_command[:original_command.find(" ")]
+    else: # 2, 3 or 4 commands
+        first = original_command[:space]
         # print(first)
-        remainder_first = original_command[original_command.find(" ") + 1:]
+        remainder_first = original_command[space + 1:]
         # print(remainder_first)
 
         space = remainder_first.find(" ")
-        if space < 0: # no other command, so all defaults
-            #aaa
+        # print(space)
+        equal = remainder_first.find("=")
+        # print(equal)
 
-    
-    second = remainder_first[:remainder_first.find(" ")]
-    # print(second)
-    remainder_second = remainder_first[remainder_first.find(" ") + 1:]
-    # print(remainder_second)
-    third = remainder_second[:remainder_second.find(" ")]
-    # print(third)
-    remainder_third = remainder_second[remainder_second.find(" ") + 1:]
-    # print(remainder_third)
-    fourth = remainder_third[:remainder_third.find(" ")]
-    # print(fourth)
-    fifth = remainder_third[remainder_third.find(" ") + 1:]
-    # print(fifth)
-    
+        if first == "bars":
+            if space < 1: # 2 commands
+                if remainder_first in ["ratings", "cocoa"]:
+                    second = "none"
+                    third = remainder_first
+                    # print(third)
+                    fourth = "top"
+                    fourth_value = "10"
+                
+                elif equal > 6:
+                    second = remainder_first[:equal]
+                    # print(second)
+                    second_value = str(remainder_first[equal + 1:])
+                    # print(second_value)
+                    third = "ratings"
+                    fourth = "top"
+                    fourth_value = "10"
 
+                else:
+                    second = "none"
+                    third = "ratings"
+                    fourth = remainder_first[:equal]
+                    # print(fourth)
+                    fourth_value = str(remainder_first[equal + 1:])
+                    # print(fourth_value)
 
+            else: # 3 or 4 commands
+                second = remainder_first[:space]
+                # print(second)
+                remainder_second = remainder_first[space + 1:]
+                # print(remainder_second)
+                
+                space = remainder_second.find(" ")
+                # print(space)
+                equal = remainder_second.find("=")
+                # print(equal)
 
+                if space < 1: # 3 commands
+                    if second in ["ratings", "cocoa"]: # other commands (3rd, 4th)
+                        third = second
+                        # print(third)
+                        second = "none"
+                        fourth = remainder_second[:equal]
+                        # print(fourth)
+                        fourth_value = str(remainder_second[equal + 1:])
+                        # print(fourth_value)
+                    
+                    else: # other commands (2nd, 3rd), (2nd, 4th)
+                        temp = second
+                        equal2 = temp.find("=")
+                        # print(equal2)
+                        second = temp[:equal2]
+                        # print(second)
+                        second_value = temp[equal2 + 1:]
+                        # print(second_equal)
 
+                        if equal < 1: # other commands (2nd, 3rd)
+                            third = remainder_second
+                            # print(third)
+                            fourth = "top"
+                            fourth_value = "10"
+                    
+                        else: # other commands (2nd, 4th)
+                            third = "ratings"
+                            fourth = remainder_second[:equal]
+                            # print(fourth)
+                            fourth_value = str(remainder_second[equal + 1:])
+                            # print(fourth_value)
+                
+                else: # 4 commands
+                    temp = second
+                    equal2 = temp.find("=")
+                    # print(equal2)
+                    second = temp[:equal2]
+                    # print(second)
+                    second_value = temp[equal2 + 1:]
+                    # print(second_equal)
+                    third = remainder_second[:space]
+                    # print(third)
+                    remainder_third = remainder_second[space + 1:]
+                    # print(remainder_third)
+                    equal = remainder_third.find("=")
+                    # print(equal)
+                    fourth = remainder_third[:equal]
+                    # print(fourth)
+                    fourth_value = remainder_third[equal + 1:]
+
+        elif first == "companies":
+            pass
+
+        elif first == "regions":
+            pass
+
+        else: # countries
+            # fifth = remainder_third[remainder_third.find(" ") + 1:]
+            # # print(fifth)
+            
+            pass
 
     # executing query
 
@@ -257,7 +336,7 @@ def interactive_prompt():
     response = input("\nCiao! Enter a command, 'help' or 'exit': ").strip()
     while response != "exit":
         try:
-            first_word = response[:response.find(" ") - 1]
+            first_word = response[:response.find(" ")]
         except:
             first_word = response
         
@@ -283,5 +362,5 @@ def interactive_prompt():
 
 # Only runs when this file is run directly
 if __name__=="__main__":
-    # interactive_prompt()
+    interactive_prompt()
     pass

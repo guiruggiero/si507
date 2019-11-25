@@ -1,7 +1,10 @@
-user_input = "testando agora"
+user_input = "testando top=10"
 string = user_input.strip()
 print(string)
 print(len(string))
+
+equal = string.find("=")
+print(equal)
 
 space_spot = string.find(" ")
 print(space_spot)
