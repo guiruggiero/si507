@@ -69,20 +69,20 @@ class TestDatabase(unittest.TestCase):
         self.assertIn(('US',), result_list)
         conn.close()
 
-# class TestBarSearch(unittest.TestCase):
+class TestBarSearch(unittest.TestCase):
 
-#     def test_bar_search(self):
-#         results = process_command('bars ratings top=1')
-#         self.assertEqual(results[0][0], 'Chuao')
+    def test_bar_search(self):
+        results = process_command('bars ratings top=1')
+        self.assertEqual(results[0][0], 'Chuao')
 
-#         results = process_command('bars cocoa bottom=10')
-#         self.assertEqual(results[0][0], 'Guadeloupe')
+        results = process_command('bars cocoa bottom=10')
+        self.assertEqual(results[0][0], 'Guadeloupe')
 
-#         results = process_command('bars sellcountry=CA ratings top=5')
-#         self.assertEqual(results[0][3], 4.0)
+        results = process_command('bars sellcountry=CA ratings top=5')
+        self.assertEqual(results[0][3], 4.0)
 
-#         results = process_command('bars sourceregion=Africa ratings top=5')
-#         self.assertEqual(results[0][3], 4.0)
+        results = process_command('bars sourceregion=Africa ratings top=5')
+        self.assertEqual(results[0][3], 4.0)
 
 # class TestCompanySearch(unittest.TestCase):
 
