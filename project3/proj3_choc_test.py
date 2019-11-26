@@ -84,40 +84,40 @@ class TestBarSearch(unittest.TestCase):
         results = process_command('bars sourceregion=Africa ratings top=5')
         self.assertEqual(results[0][3], 4.0)
 
-# class TestCompanySearch(unittest.TestCase):
+class TestCompanySearch(unittest.TestCase):
 
-#     def test_company_search(self):
-#         results = process_command('companies region=Europe ratings top=5')
-#         self.assertEqual(results[1][0], 'Idilio (Felchlin)')
+    def test_company_search(self):
+        results = process_command('companies region=Europe ratings top=5')
+        self.assertEqual(results[1][0], 'Idilio (Felchlin)')
 
-#         results = process_command('companies country=US bars_sold top=5')
-#         self.assertTrue(results[0][0] == 'Fresco' and results[0][2] == 26)
+        results = process_command('companies country=US bars_sold top=5')
+        self.assertTrue(results[0][0] == 'Fresco' and results[0][2] == 26)
 
-#         results = process_command('companies cocoa top=5')
-#         self.assertEqual(results[0][0], 'Videri')
-#         self.assertGreater(results[0][2], 0.79)
+        results = process_command('companies cocoa top=5')
+        self.assertEqual(results[0][0], 'Videri')
+        self.assertGreater(results[0][2], 0.79)
 
-# class TestCountrySearch(unittest.TestCase):
+class TestCountrySearch(unittest.TestCase):
 
-#     def test_country_search(self):
-#         results = process_command('countries sources ratings bottom=5')
-#         self.assertEqual(results[1][0],'Uganda')
+    def test_country_search(self):
+        results = process_command('countries sources ratings bottom=5')
+        self.assertEqual(results[1][0],'Uganda')
 
-#         results = process_command('countries sellers bars_sold top=5')
-#         self.assertEqual(results[0][2], 764)
-#         self.assertEqual(results[1][0], 'France')
+        results = process_command('countries sellers bars_sold top=5')
+        self.assertEqual(results[0][2], 764)
+        self.assertEqual(results[1][0], 'France')
 
-# class TestRegionSearch(unittest.TestCase):
+class TestRegionSearch(unittest.TestCase):
 
-#     def test_region_search(self):
-#         results = process_command('regions sources bars_sold top=5')
-#         self.assertEqual(results[0][0], 'Americas')
-#         self.assertEqual(results[3][1], 66)
-#         self.assertEqual(len(results), 4)
+    def test_region_search(self):
+        results = process_command('regions sources bars_sold top=5')
+        self.assertEqual(results[0][0], 'Americas')
+        self.assertEqual(results[3][1], 66) # flag
+        self.assertEqual(len(results), 4)
 
-#         results = process_command('regions sellers ratings top=10')
-#         self.assertEqual(len(results), 5)
-#         self.assertEqual(results[0][0], 'Oceania')
-#         self.assertGreater(results[3][1], 3.0)
+        results = process_command('regions sellers ratings top=10')
+        self.assertEqual(len(results), 5)
+        self.assertEqual(results[0][0], 'Oceania')
+        self.assertGreater(results[3][1], 3.0)
 
 unittest.main()

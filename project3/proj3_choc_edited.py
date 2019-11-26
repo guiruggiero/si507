@@ -597,12 +597,6 @@ def process_command(command):
         statement += "LIMIT " + fourth_value
 
     elif first == "companies":
-        '''
-        'Company', 'CompanyLocation', <agg>
-        Where "agg" is the requested aggregation (i.e., average rating or cocoa percent,
-        or number of bars sold)
-        '''
-
         # command 2, part 1
         if second == "region":
             statement = "SELECT Company, Region AS CompanyLocation, "
@@ -611,11 +605,11 @@ def process_command(command):
         
         # command 3, part 1
         if third == "cocoa":
-            statement += "CocoaPercent "
+            statement += "SUM(CocoaPercent)/COUNT(CocoaPercent) AS AvgCocoaPercent "
         elif third == "bars_sold":
-            statement += "[REF] AS BarsSold "
+            statement += "COUNT(SpecificBeanBarName) AS BarsSold "
         else:
-            statement += "Rating "
+            statement += "SUM(Rating)/COUNT(Rating) as AvgRating "
 
         statement += "FROM Bars "
         statement += "JOIN Countries ON Bars.CompanyLocationId = Countries.Id "
@@ -626,13 +620,16 @@ def process_command(command):
         elif second == "region":
             statement += "WHERE Region = '" + second_value + "' "
         
+        statement += "GROUP BY Company "
+        statement += "HAVING COUNT(SpecificBeanBarName) > 4 "
+
         # command 3, part 2
         if third == "cocoa":
-            statement += "ORDER BY CocoaPercent "
+            statement += "ORDER BY SUM(CocoaPercent)/COUNT(CocoaPercent) "
         elif third == "bars_sold":
-            statement += "ORDER BY [REF] "
+            statement += "ORDER BY COUNT(SpecificBeanBarName) "
         else:
-            statement += "ORDER BY Rating "
+            statement += "ORDER BY SUM(Rating)/COUNT(Rating) "
 
         # first part command 4
         if fourth == "bottom":
@@ -644,24 +641,92 @@ def process_command(command):
         statement += "LIMIT " + fourth_value
     
     elif first == "regions":
-        '''
-        'Region', <agg>
-        Where "agg" is the requested aggregation (i.e., average rating or cocoa percent,
-        or number of bars sold)
-        '''
+        # command 3, part 1
+        if third == "cocoa":
+            statement = "SELECT Region, SUM(CocoaPercent)/COUNT(CocoaPercent) AS AvgCocoaPercent "
+        elif third == "bars_sold":
+            statement = "SELECT Region, COUNT(SpecificBeanBarName) AS BarsSold "
+        else:
+            statement = "SELECT Region, SUM(Rating)/COUNT(Rating) as AvgRating "
 
-        pass
+        statement += "FROM Bars "
+        statement += "JOIN Countries ON Bars."
+        
+        # command 2
+        if second == "sources":
+            statement += "BroadBeanOriginId = Countries.Id "
+        else:
+            statement += "CompanyLocationId = Countries.Id "
+        
+        statement += "GROUP BY Region "
+        statement += "HAVING COUNT(SpecificBeanBarName) > 4 "
+
+        # command 3, part 2
+        if third == "cocoa":
+            statement += "ORDER BY SUM(CocoaPercent)/COUNT(CocoaPercent) "
+        elif third == "bars_sold":
+            statement += "ORDER BY COUNT(SpecificBeanBarName) "
+        else:
+            statement += "ORDER BY SUM(Rating)/COUNT(Rating) "
+
+        # first part command 4
+        if fourth == "bottom":
+            statement += "ASC "
+        else:
+            statement += "DESC "
+
+        # second part command 4
+        statement += "LIMIT " + fourth_value
     
     else: # countries
-        '''
-        '''
+        statement = "SELECT EnglishName AS Country, Region, "
+        
+        # command 4, part 1
+        if fourth == "cocoa":
+            statement += "SUM(CocoaPercent)/COUNT(CocoaPercent) AS AvgCocoaPercent "
+        elif fourth == "bars_sold":
+            statement += "COUNT(SpecificBeanBarName) AS BarsSold "
+        else:
+            statement += "SUM(Rating)/COUNT(Rating) as AvgRating "
 
-        pass
+        statement += "FROM Bars "
+        statement += "JOIN Countries ON Bars."
+        
+        # command 3
+        if third == "sources":
+            statement += "BroadBeanOriginId = Countries.Id "
+        else:
+            statement += "CompanyLocationId = Countries.Id "
+        
+        # command 2
+        if second == "region":
+            statement += "WHERE Region = '" + second_value + "' "
 
-    print(statement)
-    # cur.execute(statement)
+        statement += "GROUP BY EnglishName "
+        statement += "HAVING COUNT(SpecificBeanBarName) > 4 "
 
-    return cur
+        # command 4, part 2
+        if fourth == "cocoa":
+            statement += "ORDER BY SUM(CocoaPercent)/COUNT(CocoaPercent) "
+        elif fourth == "bars_sold":
+            statement += "ORDER BY COUNT(SpecificBeanBarName) "
+        else:
+            statement += "ORDER BY SUM(Rating)/COUNT(Rating) "
+
+        # first part command 5
+        if fifth == "bottom":
+            statement += "ASC "
+        else:
+            statement += "DESC "
+
+        # second part command 4
+        statement += "LIMIT " + fifth_value
+
+    # print(statement)
+    cur.execute(statement)
+    data = cur.fetchall()
+
+    return data
 
 # Part 3: Implement interactive prompt. We've started for you!
 def interactive_prompt():
@@ -685,14 +750,23 @@ def interactive_prompt():
             query_data = process_command(response)
 
             # format printing
-            for row in query_data:
-                print("{:<20}{:<20}{:<20}".format(*row))
-                # print(row[0], "\t|", row[1])
+            print("\n")
+            if first_word == "bars":
+                for data in query_data:
+                    print("{:<20}{:<20}{:<20}{:<20}{:<20}{:<20}".format(*data))
+            
+            elif first_word in ["companies", "countries"]:
+                for date in query_data:
+                    print("{:<20}{:<20}{:<20}".format(*data))
+            
+            else:
+                for date in query_data:
+                    print("{:<20}{:<20}".format(*data))
         
         else:
             print("\nSorry, I did not understand your command. Please try again.\n")
 
-        response = input("Enter a command, 'help' or 'exit': ").strip()
+        response = input("\nEnter a command, 'help' or 'exit': ").strip()
     
     print("\nThanks for using this program. Arrivederci! :-)\n")
 
