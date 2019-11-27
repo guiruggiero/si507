@@ -1,5 +1,10 @@
 # Developed by Gui Ruggiero
 
+# Contribution: student post in Piazza - print formatting in lines
+# 757 to 766, excluding conditions (6 lines of code in total)
+
+# with the contribution of a student that posted this formatting code in Piazza
+
 import sqlite3
 import csv
 import json
@@ -547,36 +552,36 @@ def process_command(command):
     if first == "bars":
         # command 2
         if second == "sellcountry":
-            statement = "SELECT SpecificBeanBarName, Company, C1.EnglishName AS CompanyLocation, "
-            statement += "Rating, CocoaPercent, C2.EnglishName AS BroadBeanOrigin "
+            statement = "SELECT SUBSTR(SpecificBeanBarName, 0, 18) AS SpecificBeanBarName, SUBSTR(Company, 0, 18) AS Company, SUBSTR(C1.EnglishName, 0, 18) AS CompanyLocation, "
+            statement += "Rating, ROUND(CocoaPercent, 3) AS CocoaPercent, SUBSTR(C2.EnglishName, 0, 18) AS BroadBeanOrigin "
             statement += "FROM Bars "
             statement += "JOIN Countries AS C1 ON Bars.CompanyLocationId = C1.Id "
             statement += "JOIN Countries AS C2 ON Bars.BroadBeanOriginId = C2.Id "
             statement += "WHERE C1.Alpha2 = '" + second_value + "' "
         elif second == "sourcecountry":
-            statement = "SELECT SpecificBeanBarName, Company, C1.EnglishName AS CompanyLocation, "
-            statement += "Rating, CocoaPercent, C2.EnglishName AS BroadBeanOrigin "
+            statement = "SELECT SUBSTR(SpecificBeanBarName, 0, 18) AS SpecificBeanBarName, SUBSTR(Company, 0, 18) AS Company, SUBSTR(C1.EnglishName, 0, 18) AS CompanyLocation, "
+            statement += "Rating, ROUND(CocoaPercent, 3) AS CocoaPercent, SUBSTR(C2.EnglishName, 0, 18) AS BroadBeanOrigin "
             statement += "FROM Bars "
             statement += "JOIN Countries AS C1 ON Bars.CompanyLocationId = C1.Id "
             statement += "JOIN Countries AS C2 ON Bars.BroadBeanOriginId = C2.Id "
             statement += "WHERE C2.Alpha2 = '" + second_value + "' "
         elif second == "sellregion":
-            statement = "SELECT SpecificBeanBarName, Company, C1.Region AS CompanyLocation, "
-            statement += "Rating, CocoaPercent, C2.Region AS BroadBeanOrigin "
+            statement = "SELECT SUBSTR(SpecificBeanBarName, 0, 18) AS SpecificBeanBarName, SUBSTR(Company, 0, 18) AS Company, SUBSTR(C1.Region, 0, 18) AS CompanyLocation, "
+            statement += "Rating, ROUND(CocoaPercent, 3) AS CocoaPercent, SUBSTR(C2.Region, 0, 18) AS BroadBeanOrigin "
             statement += "FROM Bars "
             statement += "JOIN Countries AS C1 ON Bars.CompanyLocationId = C1.Id "
             statement += "JOIN Countries AS C2 ON Bars.BroadBeanOriginId = C2.Id "
             statement += "WHERE C1.Region = '" + second_value + "' "
         elif second == "sourceregion":
-            statement = "SELECT SpecificBeanBarName, Company, C1.Region AS CompanyLocation, "
-            statement += "Rating, CocoaPercent, C2.Region AS BroadBeanOrigin "
+            statement = "SELECT SUBSTR(SpecificBeanBarName, 0, 18) AS SpecificBeanBarName, SUBSTR(Company, 0, 18) AS Company, SUBSTR(C1.Region, 0, 18) AS CompanyLocation, "
+            statement += "Rating, ROUND(CocoaPercent, 3) AS CocoaPercent, SUBSTR(C2.Region, 0, 18) AS BroadBeanOrigin "
             statement += "FROM Bars "
             statement += "JOIN Countries AS C1 ON Bars.CompanyLocationId = C1.Id "
             statement += "JOIN Countries AS C2 ON Bars.BroadBeanOriginId = C2.Id "
             statement += "WHERE C2.Region = '" + second_value + "' "
         else:
-            statement = "SELECT SpecificBeanBarName, Company, C1.EnglishName AS CompanyLocation, "
-            statement += "Rating, CocoaPercent, C2.EnglishName AS BroadBeanOrigin "
+            statement = "SELECT SUBSTR(SpecificBeanBarName, 0, 18) AS SpecificBeanBarName, SUBSTR(Company, 0, 18) AS Company, SUBSTR(C1.EnglishName, 0, 18) AS CompanyLocation, "
+            statement += "Rating, ROUND(CocoaPercent, 3) AS CocoaPercent, SUBSTR(C2.EnglishName, 0, 18) AS BroadBeanOrigin "
             statement += "FROM Bars "
             statement += "JOIN Countries AS C1 ON Bars.CompanyLocationId = C1.Id "
             statement += "JOIN Countries AS C2 ON Bars.BroadBeanOriginId = C2.Id "
@@ -599,17 +604,17 @@ def process_command(command):
     elif first == "companies":
         # command 2, part 1
         if second == "region":
-            statement = "SELECT Company, Region AS CompanyLocation, "
+            statement = "SELECT SUBSTR(Company, 0, 18) AS Company, SUBSTR(Region, 0, 18) AS CompanyLocation, "
         else:
-            statement = "SELECT Company, EnglishName AS CompanyLocation, "
+            statement = "SELECT SUBSTR(Company, 0, 18) AS Company, SUBSTR(EnglishName, 0, 18) AS CompanyLocation, "
         
         # command 3, part 1
         if third == "cocoa":
-            statement += "SUM(CocoaPercent)/COUNT(CocoaPercent) AS AvgCocoaPercent "
+            statement += "ROUND(SUM(CocoaPercent)/COUNT(CocoaPercent), 3) AS AvgCocoaPercent "
         elif third == "bars_sold":
             statement += "COUNT(SpecificBeanBarName) AS BarsSold "
         else:
-            statement += "SUM(Rating)/COUNT(Rating) as AvgRating "
+            statement += "ROUND(SUM(Rating)/COUNT(Rating), 2) as AvgRating "
 
         statement += "FROM Bars "
         statement += "JOIN Countries ON Bars.CompanyLocationId = Countries.Id "
@@ -643,11 +648,11 @@ def process_command(command):
     elif first == "regions":
         # command 3, part 1
         if third == "cocoa":
-            statement = "SELECT Region, SUM(CocoaPercent)/COUNT(CocoaPercent) AS AvgCocoaPercent "
+            statement = "SELECT SUBSTR(Region, 0, 18) AS Region, ROUND(SUM(CocoaPercent)/COUNT(CocoaPercent), 3) AS AvgCocoaPercent "
         elif third == "bars_sold":
-            statement = "SELECT Region, COUNT(SpecificBeanBarName) AS BarsSold "
+            statement = "SELECT SUBSTR(Region, 0, 18) AS Region, COUNT(SpecificBeanBarName) AS BarsSold "
         else:
-            statement = "SELECT Region, SUM(Rating)/COUNT(Rating) as AvgRating "
+            statement = "SELECT SUBSTR(Region, 0, 18) AS Region, ROUND(SUM(Rating)/COUNT(Rating), 2) as AvgRating "
 
         statement += "FROM Bars "
         statement += "JOIN Countries ON Bars."
@@ -679,15 +684,15 @@ def process_command(command):
         statement += "LIMIT " + fourth_value
     
     else: # countries
-        statement = "SELECT EnglishName AS Country, Region, "
+        statement = "SELECT SUBSTR(EnglishName, 0, 18) AS Country, SUBSTR(Region, 0, 18), "
         
         # command 4, part 1
         if fourth == "cocoa":
-            statement += "SUM(CocoaPercent)/COUNT(CocoaPercent) AS AvgCocoaPercent "
+            statement += "ROUND(SUM(CocoaPercent)/COUNT(CocoaPercent), 3) AS AvgCocoaPercent "
         elif fourth == "bars_sold":
             statement += "COUNT(SpecificBeanBarName) AS BarsSold "
         else:
-            statement += "SUM(Rating)/COUNT(Rating) as AvgRating "
+            statement += "ROUND(SUM(Rating)/COUNT(Rating), 2) as AvgRating "
 
         statement += "FROM Bars "
         statement += "JOIN Countries ON Bars."
@@ -733,7 +738,7 @@ def interactive_prompt():
     help_text = load_help_text()
     # print(help_text)
     response = input("\nCiao! Enter a command, 'help' or 'exit': ").strip()
-    while response != "exit":
+    while response not in ["exit", "Exit", "EXIT"]:
         space = response.find(" ")
         # print(space)
         if space < 1:
@@ -743,28 +748,32 @@ def interactive_prompt():
         # print(first_word)
         # print(len(first_word))
 
-        if response == "help":
+        if response in ["help", "Help", "HELP"]:
             print(help_text)
 
         elif first_word in ["bars", "companies", "countries", "regions"]:
-            query_data = process_command(response)
+            try:
+                query_data = process_command(response)
+                
+                # format printing
+                print("")
+                if first_word == "bars":
+                    for entry in query_data:
+                        print("{:<20}{:<20}{:<20}{:<20}{:<20}{:<20}".format(*entry))
+                
+                elif first_word in ["companies", "countries"]:
+                    for entry in query_data:
+                        print("{:<20}{:<20}{:<20}".format(*entry))
+                
+                else:
+                    for entry in query_data:
+                        print("{:<20}{:<20}".format(*entry))
+            
+            except:
+                print("\n*** Sorry, I did not understand your command. Please try again.")
 
-            # format printing
-            print("\n")
-            if first_word == "bars":
-                for data in query_data:
-                    print("{:<20}{:<20}{:<20}{:<20}{:<20}{:<20}".format(*data))
-            
-            elif first_word in ["companies", "countries"]:
-                for date in query_data:
-                    print("{:<20}{:<20}{:<20}".format(*data))
-            
-            else:
-                for date in query_data:
-                    print("{:<20}{:<20}".format(*data))
-        
         else:
-            print("\nSorry, I did not understand your command. Please try again.\n")
+            print("\n*** Sorry, I did not understand your command. Please try again.")
 
         response = input("\nEnter a command, 'help' or 'exit': ").strip()
     
