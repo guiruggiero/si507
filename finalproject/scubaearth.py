@@ -1,10 +1,10 @@
-# SI 507 - final project, part 1
+# SI 507, Fall 2019 - final project
 # Developed by Gui Ruggiero
 
 import classes
 import requests
 from fake_useragent import UserAgent
-from webbot import Browser # https://webbot.readthedocs.io/en/latest/
+import json
 from bs4 import BeautifulSoup
 import sqlite3
 
@@ -14,11 +14,9 @@ import sqlite3
 #                                     #
 # # # # # # # # # # # # # # # # # # # #
 
-# Initializing fake user-agent and webbot browser
+# Initializing fake user-agent
 ua = UserAgent()
 user_agent = {'User-agent': ua.chrome}
-
-web = Browser()
 
 # Caching file/dictionary
 CACHE_FNAME = "cache.json"
@@ -33,11 +31,11 @@ except:
 # Scraping with cache
 def scraping_using_cache(url):
     if url in CACHE_DICTION:
-        print("Getting cached data...")
+        # print("Getting cached data...")
         return CACHE_DICTION[url]
     
     else:
-        print("Making a request for new data...")
+        # print("Making a request for new data...")
         CACHE_DICTION[url] = requests.get(url, headers = user_agent).text
         dumped_json_cache = json.dumps(CACHE_DICTION)
         fw = open(CACHE_FNAME, "w")
@@ -45,68 +43,69 @@ def scraping_using_cache(url):
         fw.close()
         return CACHE_DICTION[url]
 
-def scrape_scubaearth()
-    # Search page
-    web.go_to("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
-    web.type("united states", id = "location")
-    web.click(text = "Search", tag = "a", )
+def scrape_scubaearth():
+    try:
+        # Search page - waiting on professor
+        # web.go_to("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
+        # web.type("united states", id = "location")
+        # web.click(text = "Search", tag = "a", )
 
-    #for countries search
-    #aaa
-
+        sites = [] # list of objects. Append?
+        i = 0
         #for rows results, scrape every page
-        #aaa
+            # url = aaa
+            content = scraping_using_cache(url)
+            # name = ???
+            sites[i] = Site(name, "USA")
+            # sites[i].location = ?
+            # ...
+            i += 1
 
-    # Storing in database
-    conn = sqlite3.connect('divesites.sqlite')
-    cur = conn.cursor()
+        # Storing in database
+        conn = sqlite3.connect('divelog.db')
+        cur = conn.cursor()
 
-    # Dropping tables
-    statement = "DROP TABLE IF EXISTS 'Divesites';"
-    cur.execute(statement)
-    # print("\nTable 'Divesites' dropped (if existed)")
+        # Dropping tables
+        statement = "DROP TABLE IF EXISTS 'Sites';"
+        cur.execute(statement)
+        # print("Table 'Sites' dropped (if existed)")
 
-    # Other tables ...
+        conn.commit()
 
-    conn.commit()
+        # Creating table
+        statement = """
+            CREATE TABLE 'Sites' (
+                'id' INTEGER PRIMARY KEY AUTOINCREMENT,
+                'created_by' INTEGER,
+                'name' TEXT NOT NULL,
+                'country' TEXT NOT NULL,
+                'location' TEXT,
+                'lat' REAL,
+                'lgn' REAL,
+                'notes' TEXT,
+                'picture' TEXT
+            );
+        """
+        cur.execute(statement)
+        # print("Table 'Sites' created")
 
-    # Creating tables
-    # Table 'Divesites' ...
-    # statement = """
-    #     CREATE TABLE 'Divesites' (
-    #         'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
-    #         'Company' TEXT NOT NULL,
-    #         'SpecificBeanBarName' TEXT NOT NULL,
-    #         'REF' TEXT NOT NULL,
-    #         'ReviewDate' TEXT NOT NULL,
-    #         'CocoaPercent' REAL NOT NULL,
-    #         'CompanyLocationId' INTEGER NOT NULL,
-    #         'Rating' REAL NOT NULL,
-    #         'BeanType' TEXT,
-    #         'BroadBeanOriginId' INTEGER NOT NULL,
-    #     );
-    # """
-    cur.execute(statement)
-    # print("Table 'Divesites' created")
+        conn.commit()
 
-    # Other tables ...
+        # Inserting data
+        i = 0
+        for site in sites:
+            insertion = (None, 1, site.name, site.location) # more stuff
+            statement = "INSERT INTO 'Sites' "
+            statement += "VALUES (?, ?, ?)"
+            cur.execute(statement, insertion)
+            i += 1
 
-    conn.commit()
+        conn.commit()
+        # print("Data inserted into table 'Sites' successfully")
 
-    # Inserting data
-    # Table 'Divesites' ...
-    # i = 0
-    # for n in name:
-    #     insertion = (None, alpha2[i], alpha3[i], name[i], region[i], subregion[i], population[i], area[i])
-    #     statement = 'INSERT INTO "Countries" '
-    #     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    #     cur.execute(statement, insertion)
-    #     i += 1
+        conn.close()
 
-    # Other tables ...
-
-    conn.commit()
-
-    conn.close()
-
-#scrape_scubaearth()
+        return True
+    
+    except:
+        return False

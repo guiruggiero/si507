@@ -3,8 +3,6 @@
 # Contribution: student post in Piazza - print formatting in lines
 # 757 to 766, excluding conditions (6 lines of code in total)
 
-# with the contribution of a student that posted this formatting code in Piazza
-
 import sqlite3
 import csv
 import json
