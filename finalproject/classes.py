@@ -11,11 +11,13 @@ class Site():
         self.location = "location"
         self.lat = 0.0
         self.lgn = 0.0
+        self.max_depth = 0.0
         self.notes = "notes"
-        # self.picture = "pic"
+        self.water = "water" # water environment type
+        self.salinity = "salinity"
 
     def __str__(self):
-        return self.name
+        return self.name + " @ " + self.country
 
 class Dive():
     def __init__(self, start_date, start_time, total_time, max_depth):
@@ -46,9 +48,8 @@ class Dive():
         self.share_nitrogen = 0.0
         self.share_helium = 0.0
         self.surface_supplied = False
+        self.bottom_type = "bottom"
         self.transportation = "transportation"
-        self.water = "water" # salty, fresh, etc.
-        self.body = "body" # lake, river, ocean, etc.
         self.entry = "entry" # giant step, backroll, etc.
         self.drift = False
         self.night = False
@@ -62,7 +63,6 @@ class Dive():
         self.photo = False
         self.training = False
         self.buddy = "buddy"
-        # self.buddy_id = 0
         self.stop_depth = 0.0
         self.stop_duration = 0
 

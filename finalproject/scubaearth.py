@@ -41,11 +41,11 @@ except:
 # Scraping with cache
 def scraping_using_cache(url):
     if url in CACHE_DICTION:
-        # print("Getting cached data...")
+        print("Getting cached data...")
         return CACHE_DICTION[url]
     
     else:
-        # print("Making a request for new data...")
+        print("Making a request for new data...")
         CACHE_DICTION[url] = requests.get(url).text
         dumped_json_cache = json.dumps(CACHE_DICTION)
         fw = open(CACHE_FNAME, "w")
@@ -54,7 +54,7 @@ def scraping_using_cache(url):
         return CACHE_DICTION[url]
 
 def scrape_scubaearth():
-    try:
+    # try:
         # # Search page
         # driver.get("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
         # time.sleep(2)
@@ -79,57 +79,66 @@ def scrape_scubaearth():
         # with open("page.json", "w") as file:
         #     file.write(results_json)
         
-        # Reading source code from file (Windows <> Chrome OS development)
+        # Reading source code from JSON file (Windows <> Chrome OS development)
         results_file = open("page.json", "r")
         results_json = results_file.read()
-
-        # Parsing json
         results_soup = BeautifulSoup(results_json, "html.parser")
-        print(results_soup)
-        
-        # Finding div where dive sites are
-        sites_div = results_soup.find(id="sites-tabs-result")
-        # print(content_div)
+        # print(results_soup.prettify())
+
+        # Finding div with results
+        sites_div = results_soup.find(id='\\"sites-tabs-result\\"')
+        # print(sites_div)
         site_list = sites_div.find_all("div")
-        #print(links)
+        # print(site_list)
 
         # Going through every result and creating site objects
         sites = []
         for site_result in site_list:
-            #print(site.text)
-            site_name = site_result.find(class_="username").text
-            # print(site_name)
-            links = site_result.find_all("a")
-            # print(links)
-            for link in links:
-                # print(link)
-                if link.text == "View":
-                    site_url = "http://www.scubaearth.com" + link["href"]
-                    # print(site_url)
-            data = site_result.find(class_="dive-data").text
-            # print(data)
-            site_lat = float(data[data.search(":") + 1:-(data.search("|") - 1)])
-            # print(site_lat)
-            site_lgn = float(data[data.search("g") + 2:])
-            # print(site_lgn)
-            
-            # Scraping dive site page
-            site_details = scraping_using_cache(site_url)
-            # print(site_details)
-            site_details_soup = BeautifulSoup(site_details, "html.parser")
-            # print(site_details_soup)
+            # print(site_result)
+            # print(site_result.attrs)
+            # print(site_result["class"])
 
-            # aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+            if site_result["class"] == ['\\"activity-module']:
+                site_name = site_result.find("span").text.strip()
+                # print(site_name)
 
-            # new_site.location = 
-            # new_site.notes = 
+            elif site_result["class"] == ['\\"dive-site-search-btns\\"']:
+                site_url = "http://www.scubaearth.com" + site_result.find("a")["href"][2:-2]
+                # print(site_url)
 
-            # Creating site object
-            new_site = Site(site_name, country)
-            new_site.lat = site_lat
-            new_site.lgn = site_lgn
-            # ...
-            sites.append(new_site)
+                # Fetching dive site page
+                site_details = scraping_using_cache(site_url)
+                # print(site_details)
+                site_details_soup = BeautifulSoup(site_details, "html.parser")
+                # print(site_details_soup.prettify())
+
+                # site_location = 
+                # site_notes = 
+                # site_max_depth = 
+                # site_notes = 
+                # site_water = 
+                # site_salinity = 
+
+            else:
+                data = site_result.text
+                # print(data)
+                site_lat = float(data[data.find(":") + 2:data.find(":") + 10])
+                # print(site_lat)
+                site_lgn = float(data[data.find("g") + 3:data.find("g") + 11])
+                # print(site_lgn)
+
+            # # Creating site object
+            # new_site = Site(site_name, country)
+            # new_site.lat = site_lat
+            # new_site.lgn = site_lgn
+            # new_site.location = site_location
+            # new_site.notes = site_notes
+            # new_site.max_depth = site_max_depth
+            # new_site.notes = site_notes
+            # new_site.water = site_water
+            # new_site.salinity = site_salinity
+            # sites.append(new_site)
+
 
 
         # # Storing in database
@@ -176,9 +185,12 @@ def scrape_scubaearth():
 
         # conn.close()
 
-        return True
+        # return True
     
-    except:
-        return False
+    # except:
+    #     return False
 
-scrape_scubaearth()
+# Only runs when this file is run directly
+if __name__=="__main__":
+    scrape_scubaearth()
+    pass
