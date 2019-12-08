@@ -14,6 +14,11 @@ import sqlite3
 #                                     #
 # # # # # # # # # # # # # # # # # # # #
 
+'''
+https://stackoverflow.com/questions/27869225/python-clicking-a-button-on-a-webpage/27869641
+https://stackoverflow.com/questions/34504506/python-how-to-click-a-button-in-a-web-page-using-python
+'''
+
 # Initializing fake user-agent
 ua = UserAgent()
 user_agent = {'User-agent': ua.chrome}
