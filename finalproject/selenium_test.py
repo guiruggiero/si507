@@ -3,8 +3,14 @@ from selenium.webdriver.common.keys import Keys
 import os
 import time
 
+# windows
+os.chmod(r"C:\Users\gui\Downloads\chromedriver.exe", 755)
+driver = webdriver.Chrome(executable_path=r"C:\Users\gui\Downloads\chromedriver.exe")
+
+# chrome os
 os.chmod("/home/guilhermeruggiero/chromedriver", 755)
 driver = webdriver.Chrome(executable_path="/home/guilhermeruggiero/chromedriver")
+
 driver.get("http://www.python.org")
 time.sleep(5)
 assert "Python" in driver.title

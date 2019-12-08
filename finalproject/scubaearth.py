@@ -3,10 +3,13 @@
 
 import classes
 import requests
-from fake_useragent import UserAgent
 import json
 from bs4 import BeautifulSoup
 import sqlite3
+import os
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
 
 # # # # # # # # # # # # # # # # # # # #
 #                                     #
@@ -14,14 +17,16 @@ import sqlite3
 #                                     #
 # # # # # # # # # # # # # # # # # # # #
 
-'''
-https://stackoverflow.com/questions/27869225/python-clicking-a-button-on-a-webpage/27869641
-https://stackoverflow.com/questions/34504506/python-how-to-click-a-button-in-a-web-page-using-python
-'''
+# # Initializing Selenium browser - Windows
+# os.chmod(r"C:\Users\gui\Downloads\chromedriver.exe", 755)
+# driver = webdriver.Chrome(executable_path=r"C:\Users\gui\Downloads\chromedriver.exe")
 
-# Initializing fake user-agent
-ua = UserAgent()
-user_agent = {'User-agent': ua.chrome}
+# # Initializing Selenium browser - Chrome OS
+# os.chmod("/home/guilhermeruggiero/chromedriver", 755)
+# driver = webdriver.Chrome(executable_path="/home/guilhermeruggiero/chromedriver")
+
+# Country to be searched
+country = "USA"
 
 # Caching file/dictionary
 CACHE_FNAME = "cache.json"
@@ -41,7 +46,7 @@ def scraping_using_cache(url):
     
     else:
         # print("Making a request for new data...")
-        CACHE_DICTION[url] = requests.get(url, headers = user_agent).text
+        CACHE_DICTION[url] = requests.get(url).text
         dumped_json_cache = json.dumps(CACHE_DICTION)
         fw = open(CACHE_FNAME, "w")
         fw.write(dumped_json_cache)
@@ -50,67 +55,130 @@ def scraping_using_cache(url):
 
 def scrape_scubaearth():
     try:
-        # Search page - waiting on professor
-        # web.go_to("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
-        # web.type("united states", id = "location")
-        # web.click(text = "Search", tag = "a", )
+        # # Search page
+        # driver.get("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
+        # time.sleep(2)
 
-        sites = [] # list of objects. Append?
-        i = 0
-        #for rows results, scrape every page
-            # url = aaa
-            content = scraping_using_cache(url)
-            # name = ???
-            sites[i] = Site(name, "USA")
-            # sites[i].location = ?
+        # # Typing country into the right field
+        # field_location = driver.find_element_by_id("location")
+        # field_location.clear()
+        # field_location.send_keys(country)
+        # time.sleep(2)
+
+        # # Clicking search button        
+        # button_search = driver.find_element_by_link_text("Search")
+        # button_search.click()
+        # time.sleep(7)
+        
+        # # Getting page source code
+        # # results = driver.find_element_by_id("sites-tabs-result").get_attribute('innerText')
+        # results = driver.page_source
+        # results_json = json.dumps(results)
+        
+        # # Storing source code a file (Windows <> Chrome OS development)       
+        # with open("page.json", "w") as file:
+        #     file.write(results_json)
+        
+        # Reading source code from file (Windows <> Chrome OS development)
+        results_file = open("page.json", "r")
+        results_json = results_file.read()
+
+        # Parsing json
+        results_soup = BeautifulSoup(results_json, "html.parser")
+        print(results_soup)
+        
+        # Finding div where dive sites are
+        sites_div = results_soup.find(id="sites-tabs-result")
+        # print(content_div)
+        site_list = sites_div.find_all("div")
+        #print(links)
+
+        # Going through every result and creating site objects
+        sites = []
+        for site_result in site_list:
+            #print(site.text)
+            site_name = site_result.find(class_="username").text
+            # print(site_name)
+            links = site_result.find_all("a")
+            # print(links)
+            for link in links:
+                # print(link)
+                if link.text == "View":
+                    site_url = "http://www.scubaearth.com" + link["href"]
+                    # print(site_url)
+            data = site_result.find(class_="dive-data").text
+            # print(data)
+            site_lat = float(data[data.search(":") + 1:-(data.search("|") - 1)])
+            # print(site_lat)
+            site_lgn = float(data[data.search("g") + 2:])
+            # print(site_lgn)
+            
+            # Scraping dive site page
+            site_details = scraping_using_cache(site_url)
+            # print(site_details)
+            site_details_soup = BeautifulSoup(site_details, "html.parser")
+            # print(site_details_soup)
+
+            # aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+            # new_site.location = 
+            # new_site.notes = 
+
+            # Creating site object
+            new_site = Site(site_name, country)
+            new_site.lat = site_lat
+            new_site.lgn = site_lgn
             # ...
-            i += 1
+            sites.append(new_site)
 
-        # Storing in database
-        conn = sqlite3.connect('divelog.db')
-        cur = conn.cursor()
 
-        # Dropping tables
-        statement = "DROP TABLE IF EXISTS 'Sites';"
-        cur.execute(statement)
-        # print("Table 'Sites' dropped (if existed)")
+        # # Storing in database
+        # conn = sqlite3.connect('divelog.db')
+        # cur = conn.cursor()
 
-        conn.commit()
+        # # Dropping tables
+        # statement = "DROP TABLE IF EXISTS 'Sites';"
+        # cur.execute(statement)
+        # # print("Table 'Sites' dropped (if existed)")
 
-        # Creating table
-        statement = """
-            CREATE TABLE 'Sites' (
-                'id' INTEGER PRIMARY KEY AUTOINCREMENT,
-                'created_by' INTEGER,
-                'name' TEXT NOT NULL,
-                'country' TEXT NOT NULL,
-                'location' TEXT,
-                'lat' REAL,
-                'lgn' REAL,
-                'notes' TEXT,
-                'picture' TEXT
-            );
-        """
-        cur.execute(statement)
-        # print("Table 'Sites' created")
+        # conn.commit()
 
-        conn.commit()
+        # # Creating table
+        # statement = """
+        #     CREATE TABLE 'Sites' (
+        #         'id' INTEGER PRIMARY KEY AUTOINCREMENT,
+        #         'created_by' INTEGER,
+        #         'name' TEXT NOT NULL,
+        #         'country' TEXT NOT NULL,
+        #         'location' TEXT,
+        #         'lat' REAL,
+        #         'lgn' REAL,
+        #         'notes' TEXT,
+        #         'picture' TEXT
+        #     );
+        # """
+        # cur.execute(statement)
+        # # print("Table 'Sites' created")
 
-        # Inserting data
-        i = 0
-        for site in sites:
-            insertion = (None, 1, site.name, site.location) # more stuff
-            statement = "INSERT INTO 'Sites' "
-            statement += "VALUES (?, ?, ?)"
-            cur.execute(statement, insertion)
-            i += 1
+        # conn.commit()
 
-        conn.commit()
-        # print("Data inserted into table 'Sites' successfully")
+        # # Inserting data
+        # i = 0
+        # for site in sites:
+        #     insertion = (None, 1, site.name, site.location) # more stuff
+        #     statement = "INSERT INTO 'Sites' "
+        #     statement += "VALUES (?, ?, ?)"
+        #     cur.execute(statement, insertion)
+        #     i += 1
 
-        conn.close()
+        # conn.commit()
+        # # print("Data inserted into table 'Sites' successfully")
+
+        # conn.close()
 
         return True
     
     except:
         return False
+
+scrape_scubaearth()
