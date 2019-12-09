@@ -8,7 +8,6 @@ class Site():
         self.name = name
         self.country = country
 
-        self.location = "location"
         self.lat = 0.0
         self.lgn = 0.0
         self.max_depth = 0.0

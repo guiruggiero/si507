@@ -41,11 +41,11 @@ except:
 # Scraping with cache
 def scraping_using_cache(url):
     if url in CACHE_DICTION:
-        print("Getting cached data...")
+        # print("Getting cached data...")
         return CACHE_DICTION[url]
     
     else:
-        print("Making a request for new data...")
+        # print("Making a request for new data...")
         CACHE_DICTION[url] = requests.get(url).text
         dumped_json_cache = json.dumps(CACHE_DICTION)
         fw = open(CACHE_FNAME, "w")
@@ -106,18 +106,31 @@ def scrape_scubaearth():
                 site_url = "http://www.scubaearth.com" + site_result.find("a")["href"][2:-2]
                 # print(site_url)
 
-                # Fetching dive site page
+                # Fetching dive site page and details
                 site_details = scraping_using_cache(site_url)
                 # print(site_details)
                 site_details_soup = BeautifulSoup(site_details, "html.parser")
                 # print(site_details_soup.prettify())
-
-                # site_location = 
-                # site_notes = 
-                # site_max_depth = 
-                # site_notes = 
-                # site_water = 
-                # site_salinity = 
+                content_div = site_details_soup.find(class_="general-content-module dive-site-overview-module")
+                # print(content_div)
+                site_notes = content_div.find("span").text.strip()
+                # print(site_notes)
+                data_table = content_div.find_all("tr")
+                # print(data_table)
+                for row in data_table:
+                    if row.find(class_="td-title").text.strip() == "Maximum Depth":
+                        site_max_depth = row.find("span").text.strip()
+                        try:
+                            site_max_depth = int(site_max_depth)
+                        except:
+                            site_max_depth = 0
+                        # print(site_max_depth)
+                    elif row.find(class_="td-title").text.strip() == "Water Environment Type":
+                        site_water = row.find("span").text.strip()
+                        # print(site_water)
+                    elif row.find(class_="td-title").text.strip() == "Salinity":
+                        site_salinity = row.find("span").text.strip()
+                        # print(site_salinity)
 
             else:
                 data = site_result.text
@@ -127,19 +140,20 @@ def scrape_scubaearth():
                 site_lgn = float(data[data.find("g") + 3:data.find("g") + 11])
                 # print(site_lgn)
 
-            # # Creating site object
-            # new_site = Site(site_name, country)
-            # new_site.lat = site_lat
-            # new_site.lgn = site_lgn
-            # new_site.location = site_location
-            # new_site.notes = site_notes
-            # new_site.max_depth = site_max_depth
-            # new_site.notes = site_notes
-            # new_site.water = site_water
-            # new_site.salinity = site_salinity
-            # sites.append(new_site)
+            # Creating site object
+            new_site = Site(site_name, country)
+            new_site.lat = site_lat
+            new_site.lgn = site_lgn
+            new_site.notes = site_notes
+            new_site.max_depth = site_max_depth
+            new_site.water = site_water
+            new_site.salinity = site_salinity
+            print(new_site)
 
+            sites.append(new_site)
+            # print(sites)
 
+            print("="*50)
 
         # # Storing in database
         # conn = sqlite3.connect('divelog.db')
