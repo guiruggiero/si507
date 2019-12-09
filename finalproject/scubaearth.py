@@ -1,7 +1,6 @@
 # SI 507, Fall 2019 - final project
 # Developed by Gui Ruggiero
 
-import classes
 import requests
 import json
 from bs4 import BeautifulSoup
@@ -16,6 +15,23 @@ import time
 #   Part 1: Scraping ScubaEarth.com   #
 #                                     #
 # # # # # # # # # # # # # # # # # # # #
+
+class Site():
+    def __init__(self, name, country):
+        self.created_by = 1
+        
+        self.name = name
+        self.country = country
+
+        self.lat = 0.0
+        self.lgn = 0.0
+        self.max_depth = 0.0
+        self.notes = "notes"
+        self.water = "water" # water environment type
+        self.salinity = "salinity"
+
+    def __str__(self):
+        return self.name + " @ " + self.country
 
 # # Initializing Selenium browser - Windows
 # os.chmod(r"C:\Users\gui\Downloads\chromedriver.exe", 755)
@@ -54,155 +70,169 @@ def scraping_using_cache(url):
         return CACHE_DICTION[url]
 
 def scrape_scubaearth():
-    # try:
-        # # Search page
-        # driver.get("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
-        # time.sleep(2)
+    # # Search page
+    # driver.get("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
+    # time.sleep(2)
+    # print("\n1. Page opened\n")
 
-        # # Typing country into the right field
-        # field_location = driver.find_element_by_id("location")
-        # field_location.clear()
-        # field_location.send_keys(country)
-        # time.sleep(2)
+    # # Typing country into the right field
+    # field_location = driver.find_element_by_id("location")
+    # field_location.clear()
+    # field_location.send_keys(country)
+    # time.sleep(2)
+    # print("2. Country typed on field\n")
 
-        # # Clicking search button        
-        # button_search = driver.find_element_by_link_text("Search")
-        # button_search.click()
-        # time.sleep(7)
-        
-        # # Getting page source code
-        # # results = driver.find_element_by_id("sites-tabs-result").get_attribute('innerText')
-        # results = driver.page_source
-        # results_json = json.dumps(results)
-        
-        # # Storing source code a file (Windows <> Chrome OS development)       
-        # with open("page.json", "w") as file:
-        #     file.write(results_json)
-        
-        # Reading source code from JSON file (Windows <> Chrome OS development)
-        results_file = open("page.json", "r")
-        results_json = results_file.read()
-        results_soup = BeautifulSoup(results_json, "html.parser")
-        # print(results_soup.prettify())
+    # # Clicking search button        
+    # button_search = driver.find_element_by_link_text("Search")
+    # button_search.click()
+    # time.sleep(7)
+    # print("3. Clicked search button - this is fun!\n")
+    
+    # # Getting page source code
+    # # results = driver.find_element_by_id("sites-tabs-result").get_attribute('innerText')
+    # results = driver.page_source
+    # results_json = json.dumps(results)
+    # print("4. Got results page source code\n")
 
-        # Finding div with results
-        sites_div = results_soup.find(id='\\"sites-tabs-result\\"')
-        # print(sites_div)
-        site_list = sites_div.find_all("div")
-        # print(site_list)
+#     # Storing source code a file (Windows <> Chrome OS development)       
+#     # with open("page.json", "w") as file:
+#     #     file.write(results_json)
+    
+    # Reading source code from JSON file (Windows <> Chrome OS development)
+    results_file = open("page.json", "r")
+    results_json = results_file.read()
+    results_soup = BeautifulSoup(results_json, "html.parser")
+    # print(results_soup.prettify())
 
-        # Going through every result and creating site objects
-        sites = []
-        for site_result in site_list:
-            # print(site_result)
-            # print(site_result.attrs)
-            # print(site_result["class"])
+    # Finding div with results
+    sites_div = results_soup.find(id='\\"sites-tabs-result\\"')
+    # print(sites_div)
+    site_list = sites_div.find_all("div")
+    # print(site_list)
 
-            if site_result["class"] == ['\\"activity-module']:
-                site_name = site_result.find("span").text.strip()
-                # print(site_name)
+    # Going through every result and creating site objects
+    sites = []
+    i = 1
+    for site_result in site_list:
+        # print(site_result)
+        # print(site_result.attrs)
+        # print(site_result["class"])
 
-            elif site_result["class"] == ['\\"dive-site-search-btns\\"']:
-                site_url = "http://www.scubaearth.com" + site_result.find("a")["href"][2:-2]
-                # print(site_url)
-
-                # Fetching dive site page and details
-                site_details = scraping_using_cache(site_url)
-                # print(site_details)
-                site_details_soup = BeautifulSoup(site_details, "html.parser")
-                # print(site_details_soup.prettify())
-                content_div = site_details_soup.find(class_="general-content-module dive-site-overview-module")
-                # print(content_div)
-                site_notes = content_div.find("span").text.strip()
-                # print(site_notes)
-                data_table = content_div.find_all("tr")
-                # print(data_table)
-                for row in data_table:
-                    if row.find(class_="td-title").text.strip() == "Maximum Depth":
-                        site_max_depth = row.find("span").text.strip()
-                        try:
-                            site_max_depth = int(site_max_depth)
-                        except:
-                            site_max_depth = 0
-                        # print(site_max_depth)
-                    elif row.find(class_="td-title").text.strip() == "Water Environment Type":
-                        site_water = row.find("span").text.strip()
-                        # print(site_water)
-                    elif row.find(class_="td-title").text.strip() == "Salinity":
-                        site_salinity = row.find("span").text.strip()
-                        # print(site_salinity)
-
-            else:
-                data = site_result.text
-                # print(data)
-                site_lat = float(data[data.find(":") + 2:data.find(":") + 10])
-                # print(site_lat)
-                site_lgn = float(data[data.find("g") + 3:data.find("g") + 11])
-                # print(site_lgn)
-
-            # Creating site object
+        if site_result["class"] == ['\\"activity-module']:
+            site_name = site_result.find("span").text.strip()
+            # print(site_name)
             new_site = Site(site_name, country)
-            new_site.lat = site_lat
-            new_site.lgn = site_lgn
+            
+            # print(i)
+            i += 1
+
+        elif site_result["class"] == ['\\"dive-site-search-btns\\"']:
+            site_url = "http://www.scubaearth.com" + site_result.find("a")["href"][2:-2]
+            # print(site_url)
+
+            # Fetching dive site page and details
+            site_details = scraping_using_cache(site_url)
+            # print(site_details)
+            site_details_soup = BeautifulSoup(site_details, "html.parser")
+            # print(site_details_soup.prettify())
+            content_div = site_details_soup.find(class_="general-content-module dive-site-overview-module")
+            # print(content_div)
+
+            site_notes = content_div.find("span").text.strip()
+            # print(site_notes)
             new_site.notes = site_notes
+
+            data_table = content_div.find_all("tr")
+            # print(data_table)
+            for row in data_table:
+                if row.find(class_="td-title").text.strip() == "Maximum Depth":
+                    site_max_depth = row.find("span").text.strip()
+                    try:
+                        site_max_depth = int(site_max_depth)
+                    except:
+                        site_max_depth = 0
+                    # print(site_max_depth)
+
+                elif row.find(class_="td-title").text.strip() == "Water Environment Type":
+                    site_water = row.find("span").text.strip()
+                    # print(site_water)
+
+                elif row.find(class_="td-title").text.strip() == "Salinity":
+                    site_salinity = row.find("span").text.strip()
+                    # print(site_salinity)
+
             new_site.max_depth = site_max_depth
             new_site.water = site_water
             new_site.salinity = site_salinity
-            print(new_site)
 
+            # print(i)
+            i += 1
+
+        else:
+            data = site_result.text
+            # print(data)
+            site_lat = float(data[data.find(":") + 2:data.find(":") + 10])
+            # print(site_lat)
+            site_lgn = float(data[data.find("g") + 3:data.find("g") + 11])
+            # print(site_lgn)
+            new_site.lat = site_lat
+            new_site.lgn = site_lgn
+
+            # print(i)
+            i += 1
+        
+        if i > 3:
+            i = 1
+            # print(new_site)
             sites.append(new_site)
             # print(sites)
+            # print("="*50)
+        
+    print("5. Scraped results page and all its dive sites pages - total:" + str(len(sites)) + "\n")
 
-            print("="*50)
+    # Storing in database
+    # conn = sqlite3.connect('divelog.db')
+    # cur = conn.cursor()
 
-        # # Storing in database
-        # conn = sqlite3.connect('divelog.db')
-        # cur = conn.cursor()
+    # # Dropping tables
+    # statement = "DROP TABLE IF EXISTS 'Sites';"
+    # cur.execute(statement)
+    # # print("6. Table 'Sites' dropped (if present)\n")
 
-        # # Dropping tables
-        # statement = "DROP TABLE IF EXISTS 'Sites';"
-        # cur.execute(statement)
-        # # print("Table 'Sites' dropped (if existed)")
+    # conn.commit()
 
-        # conn.commit()
+    # # Creating table
+    # statement = """
+    #     CREATE TABLE 'Sites' (
+    #         'id' INTEGER PRIMARY KEY AUTOINCREMENT,
+    #         'created_by' INTEGER,
+    #         'name' TEXT NOT NULL,
+    #         'country' TEXT NOT NULL,
+    #         'location' TEXT,
+    #         'lat' REAL,
+    #         'lgn' REAL,
+    #         'notes' TEXT,
+    #         'picture' TEXT
+    #     );
+    # """
+    # cur.execute(statement)
+    # # print("7. Table 'Sites' created\n")
 
-        # # Creating table
-        # statement = """
-        #     CREATE TABLE 'Sites' (
-        #         'id' INTEGER PRIMARY KEY AUTOINCREMENT,
-        #         'created_by' INTEGER,
-        #         'name' TEXT NOT NULL,
-        #         'country' TEXT NOT NULL,
-        #         'location' TEXT,
-        #         'lat' REAL,
-        #         'lgn' REAL,
-        #         'notes' TEXT,
-        #         'picture' TEXT
-        #     );
-        # """
-        # cur.execute(statement)
-        # # print("Table 'Sites' created")
+    # conn.commit()
 
-        # conn.commit()
+    # # Inserting data
+    # i = 0
+    # for site in sites:
+    #     insertion = (None, 1, site.name, site.location) # more stuff
+    #     statement = "INSERT INTO 'Sites' "
+    #     statement += "VALUES (?, ?, ?)"
+    #     cur.execute(statement, insertion)
+    #     i += 1
 
-        # # Inserting data
-        # i = 0
-        # for site in sites:
-        #     insertion = (None, 1, site.name, site.location) # more stuff
-        #     statement = "INSERT INTO 'Sites' "
-        #     statement += "VALUES (?, ?, ?)"
-        #     cur.execute(statement, insertion)
-        #     i += 1
+    # conn.commit()
+    # # print("8. Data successfully inserted into table 'Sites'\n")
 
-        # conn.commit()
-        # # print("Data inserted into table 'Sites' successfully")
-
-        # conn.close()
-
-        # return True
-    
-    # except:
-    #     return False
+    # conn.close()
 
 # Only runs when this file is run directly
 if __name__=="__main__":

@@ -66,4 +66,4 @@ class Dive():
         self.stop_duration = 0
 
     def __str__(self):
-        return self.name
+        return self.diver + " @ " + self.site + " (" + self.start_date + ")"
