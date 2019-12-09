@@ -33,13 +33,21 @@ class Site():
     def __str__(self):
         return self.name + " @ " + self.country
 
-# # Initializing Selenium browser - Windows
-# os.chmod(r"C:\Users\gui\Downloads\chromedriver.exe", 755)
-# driver = webdriver.Chrome(executable_path=r"C:\Users\gui\Downloads\chromedriver.exe")
-
-# # Initializing Selenium browser - Chrome OS
+# # Initializing Selenium browser - Chrome OS (not figured out entirely)
 # os.chmod("/home/guilhermeruggiero/chromedriver", 755)
 # driver = webdriver.Chrome(executable_path="/home/guilhermeruggiero/chromedriver")
+
+# # Initializing Selenium browser - Windows (alternative)
+'''
+Steps to set up:
+1- 
+2- 
+3- 
+4- 
+5- 
+'''
+os.chmod(r"C:\Users\gui\Downloads\chromedriver.exe", 755)
+driver = webdriver.Chrome(executable_path=r"C:\Users\gui\Downloads\chromedriver.exe")
 
 # Country to be searched
 country = "USA"
@@ -70,37 +78,38 @@ def scraping_using_cache(url):
         return CACHE_DICTION[url]
 
 def scrape_scubaearth():
-    # # Search page
-    # driver.get("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
-    # time.sleep(2)
-    # print("\n1. Page opened\n")
+    # Search page
+    driver.get("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
+    time.sleep(2)
+    print("\n1. Page opened\n")
 
-    # # Typing country into the right field
-    # field_location = driver.find_element_by_id("location")
-    # field_location.clear()
-    # field_location.send_keys(country)
-    # time.sleep(2)
-    # print("2. Country typed on field\n")
+    # Typing country into the right field
+    field_location = driver.find_element_by_id("location")
+    field_location.clear()
+    field_location.send_keys(country)
+    time.sleep(2)
+    print("2. Country typed on field\n")
 
-    # # Clicking search button        
-    # button_search = driver.find_element_by_link_text("Search")
-    # button_search.click()
-    # time.sleep(7)
-    # print("3. Clicked search button - this is fun!\n")
+    # Clicking search button        
+    button_search = driver.find_element_by_link_text("Search")
+    button_search.click()
+    time.sleep(7)
+    print("3. Clicked search button - this is fun!\n")
     
-    # # Getting page source code
-    # # results = driver.find_element_by_id("sites-tabs-result").get_attribute('innerText')
-    # results = driver.page_source
-    # results_json = json.dumps(results)
-    # print("4. Got results page source code\n")
+    # Getting page source code
+    # results = driver.find_element_by_id("sites-tabs-result").get_attribute('innerText')
+    results = driver.page_source
+    results_json = json.dumps(results)
+    print("4. Got results page source code\n")
 
 #     # Storing source code a file (Windows <> Chrome OS development)       
 #     # with open("page.json", "w") as file:
 #     #     file.write(results_json)
     
-    # Reading source code from JSON file (Windows <> Chrome OS development)
+#     # Reading source code from JSON file (Windows <> Chrome OS development)
     results_file = open("page.json", "r")
     results_json = results_file.read()
+
     results_soup = BeautifulSoup(results_json, "html.parser")
     # print(results_soup.prettify())
 
@@ -188,51 +197,55 @@ def scrape_scubaearth():
             # print(sites)
             # print("="*50)
         
-    print("5. Scraped results page and all its dive sites pages - total:" + str(len(sites)) + "\n")
+    print("5. Scraped results page and all its dive sites pages - total: " + str(len(sites)) + "\n")
 
     # Storing in database
-    # conn = sqlite3.connect('divelog.db')
-    # cur = conn.cursor()
+    conn = sqlite3.connect('divelog.db')
+    cur = conn.cursor()
 
     # # Dropping tables
-    # statement = "DROP TABLE IF EXISTS 'Sites';"
-    # cur.execute(statement)
-    # # print("6. Table 'Sites' dropped (if present)\n")
-
-    # conn.commit()
+    statement = "DROP TABLE IF EXISTS 'Sites';"
+    cur.execute(statement)
+    conn.commit()
+    print("6. Table 'Sites' dropped (if present)\n")
 
     # # Creating table
-    # statement = """
-    #     CREATE TABLE 'Sites' (
-    #         'id' INTEGER PRIMARY KEY AUTOINCREMENT,
-    #         'created_by' INTEGER,
-    #         'name' TEXT NOT NULL,
-    #         'country' TEXT NOT NULL,
-    #         'location' TEXT,
-    #         'lat' REAL,
-    #         'lgn' REAL,
-    #         'notes' TEXT,
-    #         'picture' TEXT
-    #     );
-    # """
-    # cur.execute(statement)
-    # # print("7. Table 'Sites' created\n")
+    statement = """
+        CREATE TABLE 'Sites' (
+            'id' INTEGER PRIMARY KEY AUTOINCREMENT,
+            'created_by' INTEGER,
+            'name' TEXT NOT NULL,
+            'country' TEXT NOT NULL,
+            'lat' REAL,
+            'lgn' REAL,
+            'max_depth' REAL,
+            'notes' TEXT,
+            'water' TEXT,
+            'salinity' TEXT
+        );
+    """
+    cur.execute(statement)
+    conn.commit()
+    print("7. Table 'Sites' created\n")
 
-    # conn.commit()
+    # Inserting data
+    i = 0
+    for site in sites:
+        insertion = (None, 1, site.name, site.country, site.lat, site.lgn, site.max_depth, site.notes, site.water, site.salinity)
+        statement = "INSERT INTO 'Sites' "
+        statement += "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        cur.execute(statement, insertion)
+        i += 1
 
-    # # Inserting data
-    # i = 0
-    # for site in sites:
-    #     insertion = (None, 1, site.name, site.location) # more stuff
-    #     statement = "INSERT INTO 'Sites' "
-    #     statement += "VALUES (?, ?, ?)"
-    #     cur.execute(statement, insertion)
-    #     i += 1
+    conn.commit()
+    if i == len(sites):
+        print("8. Data successfully inserted into table 'Sites' - rows: " + str(i) + " (as expected, heck yeah!)\n")
+    else:
+        print("8. Data successfully inserted into table 'Sites' - rows: " + str(i) + "\n")
 
-    # conn.commit()
-    # # print("8. Data successfully inserted into table 'Sites'\n")
+    conn.close()
 
-    # conn.close()
+    print("9. That's it for part 1!\n")
 
 # Only runs when this file is run directly
 if __name__=="__main__":
