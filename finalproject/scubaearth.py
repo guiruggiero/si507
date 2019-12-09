@@ -16,6 +16,19 @@ import time
 #                                     #
 # # # # # # # # # # # # # # # # # # # #
 
+# Set up steps - Gui, using UM's Windows virtual machine:
+# 1- copy scubaearth.py, selenium_test.py, chromedriver.exe from K:\Academics\2019 Fall\SI 507\Final project to C:\Users\gui\Downloads\
+# 2- open VS Code via Chrome, folder, file, and install Python extension; close, and open VS Code
+# 3- open Python 3.7 via Chrome, close window with quit() 
+# 4- install Python from https://www.python.org/downloads/ (without need to admin privileges)
+# 5- run on terminal: C:\Users\gui\AppData\Local\Programs\Python\Python38-32\Scripts\pip3.exe install requests, bs4, selenium
+# 6- run C:\Users\gui\AppData\Local\Programs\Python\Python38-32\python.exe .\selenium_test.py to test, then run .\scubaearth.py
+# 7- download DB Browser for SQLite (zip version) from https://sqlitebrowser.org/dl/ for demo
+
+# Set up information - grader:
+# - install requirements.txt
+# - for Selenium to work, follow instructions on https://chromedriver.chromium.org/getting-started
+
 class Site():
     def __init__(self, name, country):
         self.created_by = 1
@@ -33,19 +46,11 @@ class Site():
     def __str__(self):
         return self.name + " @ " + self.country
 
-# # Initializing Selenium browser - Chrome OS (not figured out entirely)
+# # Initializing Selenium browser - Chrome OS (not etirely figured out)
 # os.chmod("/home/guilhermeruggiero/chromedriver", 755)
 # driver = webdriver.Chrome(executable_path="/home/guilhermeruggiero/chromedriver")
 
-# # Initializing Selenium browser - Windows (alternative)
-'''
-Steps to set up:
-1- 
-2- 
-3- 
-4- 
-5- 
-'''
+# # Initializing Selenium browser - Windows (working alternative)
 os.chmod(r"C:\Users\gui\Downloads\chromedriver.exe", 755)
 driver = webdriver.Chrome(executable_path=r"C:\Users\gui\Downloads\chromedriver.exe")
 
@@ -100,15 +105,16 @@ def scrape_scubaearth():
     # results = driver.find_element_by_id("sites-tabs-result").get_attribute('innerText')
     results = driver.page_source
     results_json = json.dumps(results)
+    driver.close()
     print("4. Got results page source code\n")
 
 #     # Storing source code a file (Windows <> Chrome OS development)       
-#     # with open("page.json", "w") as file:
-#     #     file.write(results_json)
+#     with open("page.json", "w") as file:
+#         file.write(results_json)
     
 #     # Reading source code from JSON file (Windows <> Chrome OS development)
-    results_file = open("page.json", "r")
-    results_json = results_file.read()
+#     results_file = open("page.json", "r")
+#     results_json = results_file.read()
 
     results_soup = BeautifulSoup(results_json, "html.parser")
     # print(results_soup.prettify())
