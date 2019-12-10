@@ -11,23 +11,8 @@ from selenium.webdriver.common.keys import Keys
 import time
 
 # # # # # # # # # # # # # # # # # # # #
-#                                     #
 #   Part 1: Scraping ScubaEarth.com   #
-#                                     #
 # # # # # # # # # # # # # # # # # # # #
-
-# Set up steps - Gui, using UM's Windows virtual machine:
-# 1- copy scubaearth.py, selenium_test.py, chromedriver.exe from K:\Academics\2019 Fall\SI 507\Final project to C:\Users\gui\Downloads\
-# 2- open VS Code via Chrome, folder, file, and install Python extension; close, and open VS Code
-# 3- open Python 3.7 via Chrome, close window with quit() 
-# 4- install Python from https://www.python.org/downloads/ (without need to admin privileges)
-# 5- run on terminal: C:\Users\gui\AppData\Local\Programs\Python\Python38-32\Scripts\pip3.exe install requests, bs4, selenium
-# 6- run C:\Users\gui\AppData\Local\Programs\Python\Python38-32\python.exe .\selenium_test.py to test, then run .\scubaearth.py
-# 7- download DB Browser for SQLite (zip version) from https://sqlitebrowser.org/dl/ for demo
-
-# Set up information - grader:
-# - install requirements.txt
-# - for Selenium to work, follow instructions on https://chromedriver.chromium.org/getting-started
 
 class Site():
     def __init__(self, name, country):
@@ -86,33 +71,33 @@ def scrape_scubaearth():
     # Search page
     driver.get("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
     time.sleep(2)
-    print("\n1. Page opened\n")
+    print("Page opened\n")
 
     # Typing country into the right field
     field_location = driver.find_element_by_id("location")
     field_location.clear()
     field_location.send_keys(country)
     time.sleep(2)
-    print("2. Country typed on field\n")
+    print("Country typed on field\n")
 
     # Clicking search button        
     button_search = driver.find_element_by_link_text("Search")
     button_search.click()
     time.sleep(7)
-    print("3. Clicked search button - this is fun!\n")
+    print("Clicked search button - this is fun!\n")
     
     # Getting page source code
     # results = driver.find_element_by_id("sites-tabs-result").get_attribute('innerText')
     results = driver.page_source
     results_json = json.dumps(results)
     driver.close()
-    print("4. Got results page source code\n")
+    print("Got results page source code\n")
 
-#     # Storing source code a file (Windows <> Chrome OS development)       
+# #     Storing source code a file (Windows <> Chrome OS development)       
 #     with open("page.json", "w") as file:
 #         file.write(results_json)
     
-#     # Reading source code from JSON file (Windows <> Chrome OS development)
+# #     Reading source code from JSON file (Windows <> Chrome OS development)
 #     results_file = open("page.json", "r")
 #     results_json = results_file.read()
 
@@ -203,7 +188,7 @@ def scrape_scubaearth():
             # print(sites)
             # print("="*50)
         
-    print("5. Scraped results page and all its dive sites pages - total: " + str(len(sites)) + "\n")
+    print("Scraped results page and all its dive sites pages - total: " + str(len(sites)) + "\n")
 
     # Storing in database
     conn = sqlite3.connect('divelog.db')
@@ -213,7 +198,7 @@ def scrape_scubaearth():
     statement = "DROP TABLE IF EXISTS 'Sites';"
     cur.execute(statement)
     conn.commit()
-    print("6. Table 'Sites' dropped (if present)\n")
+    print("Table 'Sites' dropped (if present)\n")
 
     # Creating table
     statement = """
@@ -232,12 +217,13 @@ def scrape_scubaearth():
     """
     cur.execute(statement)
     conn.commit()
-    print("7. Table 'Sites' created\n")
+    print("Table 'Sites' created\n")
 
     # Inserting data
     i = 0
     for site in sites:
-        insertion = (None, 1, site.name, site.country, site.lat, site.lgn, site.max_depth, site.notes, site.water, site.salinity)
+        insertion = (None, 1, site.name, site.country, site.lat, site.lgn, site.max_depth,
+            site.notes, site.water, site.salinity)
         statement = "INSERT INTO 'Sites' "
         statement += "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         cur.execute(statement, insertion)
@@ -245,13 +231,11 @@ def scrape_scubaearth():
 
     conn.commit()
     if i == len(sites):
-        print("8. Data inserted into table 'Sites' - rows: " + str(i) + " (as expected, heck yeah!)\n")
+        print("Data inserted into table 'Sites' - rows: " + str(i) + " (as expected, heck yeah!)\n")
     else:
-        print("8. Data inserted into table 'Sites' - rows: " + str(i) + "\n")
+        print("Data inserted into table 'Sites' - rows: " + str(i) + "\n")
 
     conn.close()
-
-    print("9. That's it for part 1!\n")
 
 # Only runs when this file is run directly
 if __name__=="__main__":

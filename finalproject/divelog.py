@@ -9,9 +9,7 @@ import plotly.graph_objs as go
 from statistics import mean
 
 # # # # # # # # # # # # # # # # # # # #
-#                                     #
 #        Part 2: Importing CSV        #
-#                                     #
 # # # # # # # # # # # # # # # # # # # #
 
 class Dive():
@@ -44,7 +42,7 @@ def import_divelog_csv():
     f = open("dives.csv")
     csv_data = csv.reader(f)
     # print(csv_data)
-    print("\n10. File opened and imported\n")
+    print("File opened and imported\n")
 
     dives = []
     # Extract data and build instances
@@ -83,7 +81,7 @@ def import_divelog_csv():
 
     # print(dives)
     f.close()
-    print("11. Data extracted - total: " + str(len(dives)) + "\n")
+    print("Data extracted - total: " + str(len(dives)) + "\n")
  
     # Storing in database
     conn = sqlite3.connect("divelog.db")
@@ -93,7 +91,7 @@ def import_divelog_csv():
     statement = "DROP TABLE IF EXISTS 'Dives';"
     cur.execute(statement)
     conn.commit()
-    print("12. Table 'Dives' dropped (if present)\n")
+    print("Table 'Dives' dropped (if present)\n")
 
     # Creating table
     statement = """
@@ -120,7 +118,7 @@ def import_divelog_csv():
     """
     cur.execute(statement)
     conn.commit()
-    print("13. Table 'Dives' created\n")
+    print("Table 'Dives' created\n")
 
     # Inserting data
     i = 0
@@ -147,40 +145,46 @@ def import_divelog_csv():
     # print(text_vals)
     conn.commit()
     if i == len(dives):
-        print("14. Data inserted into table 'Dives' - rows: " + str(i) + " (as expected, woohoo!)\n")
+        print("Data inserted into table 'Dives' - rows: " + str(i) + " (as expected, woohoo!)\n")
     else:
-        print("14. Data inserted into table 'Dives' - rows: " + str(i) + "\n")
+        print("Data inserted into table 'Dives' - rows: " + str(i) + "\n")
     
     conn.close()
 
-    # Plot dives into a map
-    fig = go.Figure(data = go.Scattermapbox(
-        lat = lat_vals,
-        lon = lgn_vals,
-        text = text_vals,
-        mode = "markers",
-        marker_color = "blue",
-        )
-    )
-    layout = dict(
-        title = "Divelog Gui Ruggiero",
-        autosize = True,
-        hovermode = "closest",
-        mapbox = dict(
-            accesstoken = secret.MAPBOX_TOKEN,
-            center = dict(
-                lat = mean(lat_vals),
-                lon = mean(lgn_vals)
-            ),
-            zoom = 2,
-        )
-    )
-    fig.update_layout(layout)
-    fig.write_html("divelog.html", auto_open = True)
+    # Ask if user wants to see a map
+    response = input("Do you want to view the imported dives on a map? ")
+    if response in ["y", "Y", "yes", "Yes", "yep", "Yep", "yup", "Yup", "sure", "Sure"]:
+        print("\nYour wish is my command. Creating map\n")
 
-    print("15. Map created\n")
-    print("16. That's it for part 2.\n")
-    print("17. Final project done. Mission accomplished. Happy holidays!\n")
+        # Plot dives into a map
+        fig = go.Figure(data = go.Scattermapbox(
+            lat = lat_vals,
+            lon = lgn_vals,
+            text = text_vals,
+            mode = "markers",
+            marker_color = "blue",
+            )
+        )
+        layout = dict(
+            title = "Divelog Gui Ruggiero",
+            autosize = True,
+            hovermode = "closest",
+            mapbox = dict(
+                accesstoken = secret.MAPBOX_TOKEN,
+                center = dict(
+                    lat = mean(lat_vals),
+                    lon = mean(lgn_vals)
+                ),
+                zoom = 2,
+            )
+        )
+        fig.update_layout(layout)
+        fig.write_html("divelog.html", auto_open = True)
+
+        print("Map created\n")
+
+    else:
+        print("\nNo problem, carrying on...\n")
 
 # Only runs when this file is run directly
 if __name__=="__main__":
