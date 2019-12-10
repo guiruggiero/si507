@@ -2,8 +2,9 @@
 # Developed by Gui Ruggiero
 
 import csv
+import datetime
 import sqlite3
-import secrets
+import secret
 import plotly.graph_objs as go
 from statistics import mean
 
@@ -14,180 +15,172 @@ from statistics import mean
 # # # # # # # # # # # # # # # # # # # #
 
 class Dive():
-    def __init__(self, start_date, start_time, total_time, max_depth):
+    def __init__(self, num, site, start_date, start_time, total_time, max_depth):
         self.diver = 1
-        self.site = 0
-        
+
+        self.num = num
+        self.site = site
         self.start_date = start_date
-        self.start_time = start_time # how to format and attribute?
+        self.start_time = start_time
         self.total_time = total_time
         self.max_depth = max_depth
         
-        self.start_pressure = 0
-        self.end_pressure = 0
-        self.surface_temp = 0
+        self.location = "location"
+        self.country = "country"
+        self.lat = 0.0
+        self.lgn = 0.0
+        self.gas = "gas"
+        self.buddy = "buddy"
         self.bottom_temp = 0
-        self.weights = 0
         self.dive_center = "dive_center"
         self.boat = "boat"
-        self.structures = "structures"
-        self.animals = "animals"
-        self.rating = 0
-        self.favorite = False
-        self.photo_album = "photo_album"
         self.notes = "notes"
-        self.validated = False
-        self.gas = "gas"
-        self.share_oxygen = 0.0
-        self.share_nitrogen = 0.0
-        self.share_helium = 0.0
-        self.surface_supplied = False
-        self.bottom_type = "bottom"
-        self.transportation = "transportation"
-        self.entry = "entry" # giant step, backroll, etc.
-        self.drift = False
-        self.night = False
-        self.deep = False
-        self.wreck = False
-        self.cave = False
-        self.ice = False
-        self.altitude = False
-        self.decompression = False
-        self.rescue = False
-        self.photo = False
-        self.training = False
-        self.buddy = "buddy"
-        self.stop_depth = 0.0
-        self.stop_duration = 0
 
     def __str__(self):
-        return self.diver + " @ " + self.site + " (" + self.start_date + ")"
+        return str(self.diver) + " @ " + self.site + " (" + self.country + ")"
 
 def import_divelog_csv():
     # Open file and get data
-    f = open("divelog.csv")
+    f = open("dives.csv")
     csv_data = csv.reader(f)
-    f.close()
+    # print(csv_data)
+    print("\n10. File opened and imported\n")
 
     dives = []
-    i = 0
     # Extract data and build instances
     for row in csv_data:
-        if row[i] != 'dive':
-            dives[i] = Dive() # start_date, start_time, total_time, max_depth
-            i += 1
-    
+        if row[0] != "Num":
+            # print(row)
+            dive_date = datetime.datetime(int(row[2]), int(row[3]), int(row[4]))
+            # print(dive_date)
+            dive = Dive(int(row[0]), row[1], dive_date, row[5], int(row[6]), float(row[7]))
+            
+            dive.location = row[8]
+            dive.country = row[9]
+            dive.gas = row[13]
+            dive.buddy = row[14]
+            dive.dive_center = row[15]
+            dive.boat = row[16]
+            dive.notes = row[17]
+
+            try:
+                dive.lat = float(row[10])
+            except:
+                dive.lat = row[10]
+
+            try:
+                dive.lgn = float(row[11])
+            except:
+                dive.lgn = row[11]
+
+            try:
+                dive.bottom_temp = int(row[12])
+            except:
+                dive.bottom_temp = row[12]
+            
+            # print(dive)
+            dives.append(dive)
+
+    # print(dives)
+    f.close()
+    print("11. Data extracted - total: " + str(len(dives)) + "\n")
+ 
     # Storing in database
-    conn = sqlite3.connect('divelog.db')
+    conn = sqlite3.connect("divelog.db")
     cur = conn.cursor()
 
-    # Dropping tables
+    # Dropping table
     statement = "DROP TABLE IF EXISTS 'Dives';"
     cur.execute(statement)
-    # print("\nTable 'Dives' dropped (if existed)")
-
     conn.commit()
+    print("12. Table 'Dives' dropped (if present)\n")
 
-    # Creating table - varbinary, date, time
+    # Creating table
     statement = """
         CREATE TABLE 'Dives' (
             'id' INTEGER PRIMARY KEY AUTOINCREMENT,
             'diver' INTEGER NOT NULL,
-            'site' INTEGER NOT NULL,
-            'start_date' date NOT NULL
-            'start_time' time NOT NULL,
+            'num' INTEGER NOT NULL,
+            'site' TEXT NOT NULL,
+            'start_date' TEXT NOT NULL,
+            'start_time' TEXT NOT NULL,
             'total_time' INTEGER NOT NULL,
             'max_depth' REAL NOT NULL,
-            'start_pressure' INTEGER,
-            'end_pressure' INTEGER,
-            'surface_temp' REAL,
-            'bottom_temp' REAL,
-            'weights' INTEGER,
+            'location' TEXT,
+            'country' TEXT,
+            'lat' REAL,
+            'lgn' REAL,
+            'gas' TEXT,
+            'buddy' TEXT,
+            'bottom_temp' INTEGER,
             'dive_center' TEXT,
             'boat' TEXT,
-            'structures' TEXT,
-            'animals' TEXT,
-            'rating' INTEGER,
-            'favorite' varbinary,
-            'album' TEXT,
-            'notes' TEXT,
-            'validated' varbinary,
-            'gas' TEXT,
-            'share_oxygen' REAL,
-            'share_nitrogen' REAL,
-            'share_helium' REAL,
-            'surface_supplied' varbinary,
-            'transportation' TEXT,
-            'water' TEXT,
-            'body' TEXT,
-            'entry' TEXT,
-            'drift' varbinary,
-            'night' varbinary,
-            'deep' varbinary,
-            'wreck' varbinary,
-            'cave' varbinary,
-            'ice' varbinary,
-            'altitude' varbinary,
-            'decompression' varbinary,
-            'rescue' varbinary,
-            'photo' varbinary,
-            'training' varbinary,
-            'buddy' TEXT,
-            'stop_depth' REAL,
-            'stop_duration' INTEGER
-            FOREIGN KEY(site) REFERENCES sites(id);
+            'notes' TEXT
         );
     """
-
     cur.execute(statement)
-    # print("Table 'Dives' created")
-
     conn.commit()
+    print("13. Table 'Dives' created\n")
 
     # Inserting data
     i = 0
-    # for n in name:
-    #     insertion = (None, alpha2[i], alpha3[i], name[i], region[i], subregion[i], population[i], area[i])
-    #     statement = 'INSERT INTO "Countries" '
-    #     statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    #     cur.execute(statement, insertion)
-    #     
-    #     lat_vals.append(row[5])
-    #     lgn_vals.append(row[6])
-    #     text_vals.append(row[0])
-    # 
-    #     i += 1
+    lat_vals = []
+    lgn_vals = []
+    text_vals = []
+    for dive in dives:
+        insertion = (None, 1, dive.num, dive.site, dive.start_date, dive.start_time,
+            dive.total_time, dive.max_depth, dive.location, dive.country, dive.lat,
+            dive.lgn, dive.gas, dive.buddy, dive.bottom_temp, dive.dive_center,
+            dive.boat, dive.notes)
+        statement = "INSERT INTO 'Dives' "
+        statement += "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        cur.execute(statement, insertion)
+        i += 1
 
+        # Lists to create map
+        if dive.lat != "":
+            lat_vals.append(dive.lat)
+            lgn_vals.append(dive.lgn)
+            text_vals.append("Dive " + str(dive.num) + ": " + dive.site + "<br />"
+                + str(dive.start_date)[:10] + " " + dive.start_time)
+
+    # print(text_vals)
     conn.commit()
-    # print("Data inserted into table 'Dives' successfully")
-
+    if i == len(dives):
+        print("14. Data inserted into table 'Dives' - rows: " + str(i) + " (as expected, woohoo!)\n")
+    else:
+        print("14. Data inserted into table 'Dives' - rows: " + str(i) + "\n")
+    
     conn.close()
 
     # Plot dives into a map
-    # text vals ...
     fig = go.Figure(data = go.Scattermapbox(
         lat = lat_vals,
         lon = lgn_vals,
         text = text_vals,
-        mode = 'markers',
-        marker_color = 'blue',
+        mode = "markers",
+        marker_color = "blue",
         )
     )
     layout = dict(
-        title = "Dives",
+        title = "Divelog Gui Ruggiero",
         autosize = True,
         hovermode = "closest",
         mapbox = dict(
-            accesstoken = secrets.MAPBOX_TOKEN,
+            accesstoken = secret.MAPBOX_TOKEN,
             center = dict(
                 lat = mean(lat_vals),
                 lon = mean(lgn_vals)
             ),
-            zoom = 11, # how to determine programmatically?
+            zoom = 2,
         )
     )
     fig.update_layout(layout)
-    fig.write_html('dives.html', auto_open = True)
+    fig.write_html("divelog.html", auto_open = True)
+
+    print("15. Map created\n")
+    print("16. That's it for part 2.\n")
+    print("17. Final project done. Mission accomplished. Happy holidays!\n")
 
 # Only runs when this file is run directly
 if __name__=="__main__":

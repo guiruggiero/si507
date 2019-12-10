@@ -40,13 +40,13 @@ class Site():
         self.lgn = 0.0
         self.max_depth = 0.0
         self.notes = "notes"
-        self.water = "water" # water environment type
+        self.water = "water"
         self.salinity = "salinity"
 
     def __str__(self):
         return self.name + " @ " + self.country
 
-# # Initializing Selenium browser - Chrome OS (not etirely figured out)
+# # Initializing Selenium browser - Chrome OS (not entirely figured out)
 # os.chmod("/home/guilhermeruggiero/chromedriver", 755)
 # driver = webdriver.Chrome(executable_path="/home/guilhermeruggiero/chromedriver")
 
@@ -209,13 +209,13 @@ def scrape_scubaearth():
     conn = sqlite3.connect('divelog.db')
     cur = conn.cursor()
 
-    # # Dropping tables
+    # Dropping table
     statement = "DROP TABLE IF EXISTS 'Sites';"
     cur.execute(statement)
     conn.commit()
     print("6. Table 'Sites' dropped (if present)\n")
 
-    # # Creating table
+    # Creating table
     statement = """
         CREATE TABLE 'Sites' (
             'id' INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -245,9 +245,9 @@ def scrape_scubaearth():
 
     conn.commit()
     if i == len(sites):
-        print("8. Data successfully inserted into table 'Sites' - rows: " + str(i) + " (as expected, heck yeah!)\n")
+        print("8. Data inserted into table 'Sites' - rows: " + str(i) + " (as expected, heck yeah!)\n")
     else:
-        print("8. Data successfully inserted into table 'Sites' - rows: " + str(i) + "\n")
+        print("8. Data inserted into table 'Sites' - rows: " + str(i) + "\n")
 
     conn.close()
 
