@@ -20,7 +20,7 @@ I have a Chromebook (runs Chrome OS, based on Linux) and Selenium was not very f
 1. copy chromedriver.exe, selenium_test.py, scubaearth.py, dives.csv, divelog.py, finalproject.py from K:\Academics\2019 Fall\SI 507\Final project to C:\Users\gui\Downloads
 2. open VS Code via Chrome, folder, file, and install Python extension; close, and open VS Code
 3. install latest Python from https://www.python.org/downloads/ (no admin privileges option)
-4. run on terminal: C:\Users\gui\AppData\Local\Programs\Python\Python38-32\Scripts\pip3.exe install requests, bs4, selenium, csv, plotly
+4. run on terminal: C:\Users\gui\AppData\Local\Programs\Python\Python38-32\Scripts\pip3.exe install requests, bs4, selenium, datetime, plotly, statistics
 5. run C:\Users\gui\AppData\Local\Programs\Python\Python38-32\python.exe .\selenium_test.py to test
 6. download DB Browser for SQLite (zip version) from https://sqlitebrowser.org/dl/ for demo
 7. run C:\Users\gui\AppData\Local\Programs\Python\Python38-32\python.exe .\finalproject.py
