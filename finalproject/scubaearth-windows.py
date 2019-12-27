@@ -61,45 +61,45 @@ def scrape_scubaearth():
     # os.chmod("/home/guilhermeruggiero/chromedriver", 755)
     # driver = webdriver.Chrome(executable_path="/home/guilhermeruggiero/chromedriver")
 
-    # # Initializing Selenium browser - Windows (working alternative)
-    # os.chmod(r"C:\Users\gui\Downloads\chromedriver.exe", 755)
-    # driver = webdriver.Chrome(executable_path=r"C:\Users\gui\Downloads\chromedriver.exe")
+    # Initializing Selenium browser - Windows (working alternative)
+    os.chmod(r"C:\Users\gui\Downloads\chromedriver.exe", 755)
+    driver = webdriver.Chrome(executable_path=r"C:\Users\gui\Downloads\chromedriver.exe")
 
-    # # Country to be searched
-    # country = "USA"
+    # Country to be searched
+    country = "USA"
     
-    # # Search page
-    # driver.get("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
-    # time.sleep(2)
-    # print("Page opened\n")
+    # Search page
+    driver.get("http://www.scubaearth.com/dive-site/dive-site-profile-search.aspx")
+    time.sleep(2)
+    print("Page opened\n")
 
-    # # Typing country into the right field
-    # field_location = driver.find_element_by_id("location")
-    # field_location.clear()
-    # field_location.send_keys(country)
-    # time.sleep(2)
-    # print("Country typed on field\n")
+    # Typing country into the right field
+    field_location = driver.find_element_by_id("location")
+    field_location.clear()
+    field_location.send_keys(country)
+    time.sleep(2)
+    print("Country typed on field\n")
 
-    # # Clicking search button        
-    # button_search = driver.find_element_by_link_text("Search")
-    # button_search.click()
-    # time.sleep(7)
-    # print("Clicked search button - this is fun!\n")
+    # Clicking search button        
+    button_search = driver.find_element_by_link_text("Search")
+    button_search.click()
+    time.sleep(7)
+    print("Clicked search button - this is fun!\n")
     
-    # # Getting page source code
-    # # results = driver.find_element_by_id("sites-tabs-result").get_attribute('innerText')
-    # results = driver.page_source
-    # results_json = json.dumps(results)
-    # driver.close()
-    # print("Got results page source code\n")
+    # Getting page source code
+    # results = driver.find_element_by_id("sites-tabs-result").get_attribute('innerText')
+    results = driver.page_source
+    results_json = json.dumps(results)
+    driver.close()
+    print("Got results page source code\n")
 
 # #     Storing source code a file (Windows <> Chrome OS development)       
 #     with open("page.json", "w") as file:
 #         file.write(results_json)
     
-#     Reading source code from JSON file (Windows <> Chrome OS development)
-    results_file = open("page.json", "r")
-    results_json = results_file.read()
+# #     Reading source code from JSON file (Windows <> Chrome OS development)
+#     results_file = open("page.json", "r")
+#     results_json = results_file.read()
 
     results_soup = BeautifulSoup(results_json, "html.parser")
     # print(results_soup.prettify())
